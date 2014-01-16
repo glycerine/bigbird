@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"go/parser"
-	"go/token"
 
 	linenoise "github.com/GeertJohan/go.linenoise"
 	"github.com/glycerine/bigbird/chicken"
@@ -24,17 +22,19 @@ func main() {
 		}
 		//fmt.Printf("line is %v\n", line)
 
-		fset := token.NewFileSet()
-		f, err := parser.ParseFile(fset, "", interface{}(line), parser.Trace)
-		if err != nil {
-			fmt.Printf("parse error: %v\n", err)
-			continue
-		}
-		if f == nil {
-			fmt.Printf("ast returned was nil\n")
-		} else {
-			fmt.Printf("f is %v\n", f)
-		}
+		/*
+			fset := token.NewFileSet()
+			f, err := parser.ParseFile(fset, "", interface{}(line), parser.Trace)
+			if err != nil {
+				fmt.Printf("parse error: %v\n", err)
+				continue
+			}
+			if f == nil {
+				fmt.Printf("ast returned was nil\n")
+			} else {
+				fmt.Printf("f is %v\n", f)
+			}
+		*/
 		schemeSrc := line
 
 		s := chicken.Eval(schemeSrc)
