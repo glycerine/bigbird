@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	linenoise "github.com/GeertJohan/go.linenoise"
-	"github.com/glycerine/bigbird/chicken"
+	"github.com/glycerine/bigbird/gochick"
 )
 
 func main() {
-	chicken.Start()
+	gochick.Start()
 
 	for {
 		line, err := linenoise.Line("> ")
@@ -37,7 +37,7 @@ func main() {
 		*/
 		schemeSrc := line
 
-		s := chicken.Eval(schemeSrc)
+		s := gochick.Eval(schemeSrc)
 		fmt.Printf("%v\n", s)
 	}
 }
