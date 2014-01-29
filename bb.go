@@ -22,6 +22,7 @@ func main() {
 	var ok bool
 
 	for {
+		// step one: read a line from the user on stdin
 		lineNumber++
 		fmt.Printf("%04d bb> ", lineNumber)
 		ok = scanner.Scan()
