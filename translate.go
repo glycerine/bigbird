@@ -2,46 +2,29 @@ package main
 
 import (
 	"fmt"
-	"go/ast"
 	"go/parser"
-	"go/token"
+	"reflect"
+
+	goon "github.com/shurcooL/go-goon"
 )
 
 func TranslateToScheme(line string) (string, error) {
 	// TODO: implement the translation from go to scheme
 
-	var Ast *ast.File
-	var err error
-	wrapper := `
-     package main
-     import (
-       "fmt"
-     )
-     func main() {
-        maincode := 0
-        %s
-        fmt.Printf("\n :maincode = %%d.\n", maincode)
-     }
-`
+	expr, err := parser.ParseExpr(line)
+	if err != nil {
+		fmt.Printf("parse error: %v\n", err)
+		return "", err
+	}
+	if expr == nil {
+		fmt.Printf("expr returned was nil\n")
+	} else {
+		fmt.Printf("expr is :")
+		goon.Dump(expr)
 
-	wrapped := fmt.Sprintf(wrapper, line)
-	fmt.Printf("wrapped line is: '%s'\n", wrapped)
-
-	if bParsing {
-		// first step of translating from golang to scheme:
-		//  parse the go code using the standard libraries
-		//  token and parse
-		fset := token.NewFileSet()
-		Ast, err = parser.ParseFile(fset, "", interface{}(wrapped), parser.Trace)
-		if err != nil {
-			fmt.Printf("parse error: %v\n", err)
-			return "", err
-		}
-		if Ast == nil {
-			fmt.Printf("Ast returned was nil\n")
-		} else {
-			fmt.Printf("Ast is %v\n", Ast)
-		}
+		ty := reflect.TypeOf(expr)
+		fmt.Printf("ty is :")
+		goon.Dump(ty)
 	}
 
 	return line, nil // stubbed for now
