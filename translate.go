@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go/ast"
 	"go/parser"
 	"reflect"
 
@@ -25,6 +26,22 @@ func TranslateToScheme(line string) (string, error) {
 		ty := reflect.TypeOf(expr)
 		fmt.Printf("ty is :")
 		goon.Dump(ty)
+	}
+
+	switch expr.(type) {
+	case *ast.CallExpr:
+		callExpr := expr.(*ast.CallExpr)
+		fun := callExpr.Fun.(*ast.SelectorExpr)
+		x := fun.X.(*ast.Ident)
+		pkg := x.Name
+		sel := fun.Sel
+		name := sel.Name
+		args := callExpr.Args
+		fmt.Printf("callExpr pkg:'%s' name:'%s'\n", pkg, name)
+		goon.Dump(callExpr)
+		fmt.Printf("args is\n")
+		goon.Dump(args)
+	default:
 	}
 
 	return line, nil // stubbed for now

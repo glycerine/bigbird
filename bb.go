@@ -8,8 +8,11 @@ import (
 	"github.com/glycerine/bigbird/gochick"
 )
 
-func main() {
+func init() {
 	gochick.Start()
+}
+
+func main() {
 
 	fmt.Printf("Welcome the birdbrain repl! press ctrl-d to exit.\n")
 
