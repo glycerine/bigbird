@@ -5,6 +5,7 @@ package gochick
 // #cgo LDFLAGS: -lchicken -lm -ldl
 import "C"
 import (
+	"fmt"
 	"strings"
 	"unsafe"
 )
@@ -34,6 +35,7 @@ func Eval(s string) string {
 	C.CHICKEN_eval_string_to_string(cs, cos, 4096)
 	goString := C.GoString(cos)
 	if goString == "#<unspecified>" {
+		fmt.Printf("%s detected.\n", goString)
 		goString = ""
 	}
 	return strings.TrimSpace(goString)
