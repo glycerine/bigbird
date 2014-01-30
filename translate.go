@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"go/ast"
 	"go/parser"
-	"reflect"
 
 	goon "github.com/shurcooL/go-goon"
 )
@@ -23,12 +22,16 @@ func TranslateToScheme(line string) (string, error) {
 		fmt.Printf("expr is :")
 		goon.Dump(expr)
 
-		ty := reflect.TypeOf(expr)
-		fmt.Printf("ty is :")
-		goon.Dump(ty)
+		//ty := reflect.TypeOf(expr)
+		//fmt.Printf("ty is :")
+		//goon.Dump(ty)
 	}
 
 	switch expr.(type) {
+	case *ast.BasicLit:
+		e := expr.(*ast.BasicLit)
+		fmt.Printf("=== *ast.BasicLit detected, returning '%s'\n", e.Value)
+		return e.Value, nil
 	case *ast.CallExpr:
 		callExpr := expr.(*ast.CallExpr)
 		fun := callExpr.Fun.(*ast.SelectorExpr)
@@ -41,6 +44,8 @@ func TranslateToScheme(line string) (string, error) {
 		goon.Dump(callExpr)
 		fmt.Printf("args is\n")
 		goon.Dump(args)
+		argStr := ""
+		call := "(" + pkg + "." + name + " " + argStr + ")"
 	default:
 	}
 

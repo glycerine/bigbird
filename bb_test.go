@@ -15,6 +15,7 @@ func toScheme(line string) string {
 	return s
 }
 
+/*
 func TestCanPrint(t *testing.T) {
 
 	output := ""
@@ -28,16 +29,30 @@ func TestCanPrint(t *testing.T) {
 		})
 	})
 }
+*/
 
-func TestBasicExpressions(t *testing.T) {
+func TestConstantExpressions(t *testing.T) {
 
 	cv.Convey("Given a birdbrain repl", t, func() {
 		cv.Convey("When we evaluate constants", func() {
 			cv.Convey("they should stay the same", func() {
 				cv.So(toScheme("1"), cv.ShouldEqual, "1")
 				cv.So(toScheme("23456"), cv.ShouldEqual, "23456")
-				cv.So(toScheme("1e11"), cv.ShouldEqual, "1e11")
+				cv.So(toScheme("1e40"), cv.ShouldEqual, "1e40")
 			})
 		})
 	})
 }
+
+/*
+func TestIntegerVariables(t *testing.T) {
+
+	cv.Convey("Given a birdbrain repl", t, func() {
+		cv.Convey("When we declare and assign an integer variable", func() {
+			cv.Convey("then recall of that variable should return the store value ", func() {
+				cv.So(toScheme("a := 23"), cv.ShouldEqual, "(define a 23)")
+			})
+		})
+	})
+}
+*/
