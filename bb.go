@@ -43,9 +43,12 @@ func main() {
 		schemeSrc, err := TranslateToScheme(line)
 		if err != nil {
 			fmt.Printf("error on TranslateToScheme: '%v'\n", err)
+			continue
 		}
 
 		// step three: evaluate in the chicken-scheme repl
+		fmt.Printf("tranlation to schemeSrc is: '%s'\n", schemeSrc)
+
 		s := gochick.Eval(schemeSrc)
 		fmt.Printf("chicken-scheme eval result: '%s'\n", s)
 	}

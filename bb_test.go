@@ -67,8 +67,9 @@ func TestIntegerVariables(t *testing.T) {
 
 	cv.Convey("Given a birdbrain repl", t, func() {
 		cv.Convey("When we declare and assign an integer variable", func() {
-			cv.Convey("then recall of that variable should return the store value ", func() {
+			cv.Convey("then we should get a scheme define expression in return. ", func() {
 				cv.So(toScheme("a := 23"), cv.ShouldEqual, "(define a 23)")
+				cv.So(toScheme(`str := "twentythree"`), cv.ShouldEqual, `(define str "twentythree")`)
 			})
 		})
 	})
