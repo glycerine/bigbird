@@ -18,7 +18,7 @@ func TranslateToScheme(line string) (string, error) {
 	if len(tr) >= 2 && tr[0] == '/' && tr[1] == '/' {
 		fmt.Printf("detected // comment\n")
 		if len(tr) > 6 && tr[:6] == "//scm:" {
-			fmt.Printf("detected //scm: comment, passing through the rest of the line.\n")
+			fmt.Printf("detected //scm: comment, passing through the rest of the line : '%s'.\n", tr[6:])
 			return tr[6:], nil
 		} else {
 			return ";;" + line, nil
