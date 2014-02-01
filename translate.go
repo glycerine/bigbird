@@ -16,9 +16,9 @@ func TranslateToScheme(line string) (string, error) {
 
 	tr := strings.TrimLeft(line, "\t ")
 	if len(tr) >= 2 && tr[0] == '/' && tr[1] == '/' {
-		fmt.Printf("detected // comment\n")
+		//fmt.Printf("detected // comment\n")
 		if len(tr) > 6 && tr[:6] == "//scm:" {
-			fmt.Printf("detected //scm: comment, passing through the rest of the line : '%s'.\n", tr[6:])
+			//fmt.Printf("detected //scm: comment, passing through the rest of the line : '%s'.\n", tr[6:])
 			return tr[6:], nil
 		} else {
 			return ";;" + line, nil
@@ -31,10 +31,10 @@ func TranslateToScheme(line string) (string, error) {
 		return "", err
 	}
 	if expr == nil {
-		fmt.Printf("expr returned was nil\n")
+		fmt.Printf("\nexpr returned was nil\n")
 	} else {
-		fmt.Printf("expr is :")
-		goon.Dump(expr)
+		//fmt.Printf("\nexpr is :")
+		//goon.Dump(expr)
 
 		//ty := reflect.TypeOf(expr)
 		//fmt.Printf("ty is :")
@@ -48,17 +48,17 @@ func TranslateToScheme(line string) (string, error) {
 
 	case *ast.BasicLit:
 		e := expr.(*ast.BasicLit)
-		fmt.Printf("=== *ast.BasicLit detected\n")
-		fmt.Printf("expr is of kind: %s\n", e.Kind.String())
+		//fmt.Printf("=== *ast.BasicLit detected\n")
+		//fmt.Printf("expr is of kind: %s\n", e.Kind.String())
 		switch e.Kind {
 		case token.STRING:
-			fmt.Printf(" we have a token.STRING.\n")
+			//fmt.Printf(" we have a token.STRING.\n")
 			le := len(e.Value)
 			if e.Value[0] == '`' && e.Value[le-1] == '`' {
-				fmt.Printf(" we have a string enclosed in backticks.\n")
+				//fmt.Printf(" we have a string enclosed in backticks.\n")
 
 				q := strconv.Quote(e.Value[1:(le - 1)])
-				fmt.Printf(" return Quoted string: '%s'\n", q)
+				//fmt.Printf(" return Quoted string: '%s'\n", q)
 				return q, nil
 
 				/*
@@ -74,9 +74,9 @@ func TranslateToScheme(line string) (string, error) {
 
 			}
 		case token.INT:
-			fmt.Printf(" we have a token.INT.\n")
+			//fmt.Printf(" we have a token.INT.\n")
 		case token.FLOAT:
-			fmt.Printf(" we have a token.FLOAT.\n")
+			//fmt.Printf(" we have a token.FLOAT.\n")
 		default:
 			fmt.Printf("unrecognized token type: %#v\n", e.Kind)
 		}
