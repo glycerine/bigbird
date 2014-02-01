@@ -44,7 +44,12 @@ func TranslateToScheme(line string) (string, error) {
 	switch expr.(type) {
 	case *ast.Ident:
 		// not a simple expression, we need to parse bigger
-		return ParseStmt(line)
+		myIdent := expr.(*ast.Ident).Name
+		src, err := ParseStmt(line)
+		if err != nil && src == "" {
+			return myIdent, err
+		}
+		return src, err
 
 	case *ast.BasicLit:
 		e := expr.(*ast.BasicLit)

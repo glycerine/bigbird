@@ -28,10 +28,14 @@ func ParseStmt(line string) (string, error) {
 	//	fmt.Printf("\n bird: f.Decls[0].Body is: %#v\n", body)
 
 	firstStmt := body.List[0]
-	//	fmt.Printf("\n bird: firstStmt is:\n")
-	//	goon.Dump(firstStmt)
+	//fmt.Printf("\n bird: firstStmt is:\n")
+	//goon.Dump(firstStmt)
 
 	switch firstStmt.(type) {
+	case *ast.ExprStmt:
+		x := firstStmt.(*ast.ExprStmt)
+		return TranslateExpr(x.X)
+
 	case *ast.AssignStmt:
 		//fmt.Printf("bird: *ast.AssignStmt found.\n")
 		e := firstStmt.(*ast.AssignStmt)

@@ -72,5 +72,11 @@ func TestIntegerVariables(t *testing.T) {
 				cv.So(toScheme(`str := "twentythree"`), cv.ShouldEqual, `(define str "twentythree")`)
 			})
 		})
+		cv.Convey("When we just ask for the name of a variable", func() {
+			cv.Convey("then we should get a request for the value of that variable. ", func() {
+				cv.So(toScheme("a"), cv.ShouldEqual, "a")
+				cv.So(toScheme("myVar"), cv.ShouldEqual, "myVar")
+			})
+		})
 	})
 }
