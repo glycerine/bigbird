@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"go/ast"
 	"go/parser"
+	"go/token"
+	"strconv"
 
 	goon "github.com/shurcooL/go-goon"
 )
@@ -31,6 +33,28 @@ func TranslateToScheme(line string) (string, error) {
 	case *ast.BasicLit:
 		e := expr.(*ast.BasicLit)
 		fmt.Printf("=== *ast.BasicLit detected, returning '%s'\n", e.Value)
+		fmt.Printf("expr is of kind: %s\n", e.Kind.String())
+		switch e.Kind {
+		case token.STRING:
+			fmt.Printf(" we have a token.STRING.\n")
+			le := len(e.Value)
+			if e.Value[0] == '`' && e.Value[le-1] == '`' {
+				fmt.Printf(" we have a string enclosed in backticks.\n")
+				unq, err := strconv.Unquote(e.Value)
+				if err == nil {
+					fmt.Printf(" return Unquoted string: '%s'\n", unq)
+					return unq, nil
+				} else {
+					fmt.Printf(" Unquote attempt returned err: %#v\n", err)
+					return e.Value[1:(le - 1)], nil
+				}
+			}
+		case token.INT:
+			fmt.Printf(" we have a token.INT.\n")
+		case token.FLOAT:
+			fmt.Printf(" we have a token.FLOAT.\n")
+		}
+
 		return e.Value, nil
 	case *ast.CallExpr:
 		callExpr := expr.(*ast.CallExpr)
@@ -46,6 +70,7 @@ func TranslateToScheme(line string) (string, error) {
 		goon.Dump(args)
 		argStr := ""
 		call := "(" + pkg + "." + name + " " + argStr + ")"
+		return call, nil
 	default:
 	}
 

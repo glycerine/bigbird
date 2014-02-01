@@ -34,11 +34,17 @@ func TestCanPrint(t *testing.T) {
 func TestConstantExpressions(t *testing.T) {
 
 	cv.Convey("Given a birdbrain repl", t, func() {
-		cv.Convey("When we evaluate constants", func() {
+		cv.Convey("When we evaluate numeric constants", func() {
 			cv.Convey("they should stay the same", func() {
 				cv.So(toScheme("1"), cv.ShouldEqual, "1")
 				cv.So(toScheme("23456"), cv.ShouldEqual, "23456")
 				cv.So(toScheme("1e40"), cv.ShouldEqual, "1e40")
+				cv.So(toScheme("98764.321e12"), cv.ShouldEqual, "98764.321e12")
+			})
+		})
+		cv.Convey("When we evaluate string constants", func() {
+			cv.Convey("they should stay the same", func() {
+				cv.So(toScheme("`abc`"), cv.ShouldEqual, "abc")
 			})
 		})
 	})
