@@ -48,6 +48,7 @@ func TestConstantExpressions(t *testing.T) {
 				cv.So(toScheme(`"hello"`), cv.ShouldEqual, `"hello"`)
 				cv.So(toScheme(`"I have spaces"`), cv.ShouldEqual, `"I have spaces"`)
 				cv.So(toScheme(`"I have \"double\" quotes"`), cv.ShouldEqual, `"I have \"double\" quotes"`)
+				cv.So(toScheme("`I have \nnewline`"), cv.ShouldEqual, `"I have \nnewline"`)
 			})
 		})
 
