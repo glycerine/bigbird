@@ -32,7 +32,7 @@ func TranslateToScheme(line string) (string, error) {
 	switch expr.(type) {
 	case *ast.BasicLit:
 		e := expr.(*ast.BasicLit)
-		fmt.Printf("=== *ast.BasicLit detected, returning '%s'\n", e.Value)
+		fmt.Printf("=== *ast.BasicLit detected\n")
 		fmt.Printf("expr is of kind: %s\n", e.Kind.String())
 		switch e.Kind {
 		case token.STRING:
@@ -40,19 +40,29 @@ func TranslateToScheme(line string) (string, error) {
 			le := len(e.Value)
 			if e.Value[0] == '`' && e.Value[le-1] == '`' {
 				fmt.Printf(" we have a string enclosed in backticks.\n")
-				unq, err := strconv.Unquote(e.Value)
-				if err == nil {
-					fmt.Printf(" return Unquoted string: '%s'\n", unq)
-					return unq, nil
-				} else {
-					fmt.Printf(" Unquote attempt returned err: %#v\n", err)
-					return e.Value[1:(le - 1)], nil
-				}
+
+				q := strconv.Quote(e.Value[1:(le - 1)])
+				fmt.Printf(" return Quoted string: '%s'\n", q)
+				return q, nil
+
+				/*
+					unq, err := strconv.Unquote(e.Value)
+					if err == nil {
+						fmt.Printf(" return Unquoted string: '%s'\n", unq)
+						return unq, nil
+					} else {
+						fmt.Printf(" Unquote attempt returned err: %#v\n", err)
+						return e.Value[1:(le - 1)], nil
+					}
+				*/
+
 			}
 		case token.INT:
 			fmt.Printf(" we have a token.INT.\n")
 		case token.FLOAT:
 			fmt.Printf(" we have a token.FLOAT.\n")
+		default:
+			fmt.Printf("unrecognized token type: %#v\n", e.Kind)
 		}
 
 		return e.Value, nil

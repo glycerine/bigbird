@@ -44,7 +44,10 @@ func TestConstantExpressions(t *testing.T) {
 		})
 		cv.Convey("When we evaluate string constants", func() {
 			cv.Convey("they should stay the same", func() {
-				cv.So(toScheme("`abc`"), cv.ShouldEqual, "abc")
+				cv.So(toScheme("`abc`"), cv.ShouldEqual, `"abc"`)
+				cv.So(toScheme(`"hello"`), cv.ShouldEqual, `"hello"`)
+				cv.So(toScheme(`"I have spaces"`), cv.ShouldEqual, `"I have spaces"`)
+				cv.So(toScheme(`"I have \"double\" quotes"`), cv.ShouldEqual, `"I have \"double\" quotes"`)
 			})
 		})
 	})
