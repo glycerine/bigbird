@@ -42,6 +42,10 @@ func TranslateToScheme(line string) (string, error) {
 	}
 
 	switch expr.(type) {
+	case *ast.Ident:
+		// not a simple expression, we need to parse bigger
+		return ParseStmt(line)
+
 	case *ast.BasicLit:
 		e := expr.(*ast.BasicLit)
 		fmt.Printf("=== *ast.BasicLit detected\n")

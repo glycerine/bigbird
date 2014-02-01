@@ -63,7 +63,6 @@ func TestConstantExpressions(t *testing.T) {
 	})
 }
 
-/*
 func TestIntegerVariables(t *testing.T) {
 
 	cv.Convey("Given a birdbrain repl", t, func() {
@@ -74,4 +73,3 @@ func TestIntegerVariables(t *testing.T) {
 		})
 	})
 }
-*/
