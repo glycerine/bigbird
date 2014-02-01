@@ -6,12 +6,24 @@ import (
 	"go/parser"
 	"go/token"
 	"strconv"
+	"strings"
 
 	goon "github.com/shurcooL/go-goon"
 )
 
 func TranslateToScheme(line string) (string, error) {
 	// TODO: implement the translation from go to scheme
+
+	tr := strings.TrimLeft(line, "\t ")
+	if len(tr) >= 2 && tr[0] == '/' && tr[1] == '/' {
+		fmt.Printf("detected // comment\n")
+		if len(tr) > 6 && tr[:6] == "//scm:" {
+			fmt.Printf("detected //scm: comment, passing through the rest of the line.\n")
+			return tr[6:], nil
+		} else {
+			return ";;" + line, nil
+		}
+	}
 
 	expr, err := parser.ParseExpr(line)
 	if err != nil {

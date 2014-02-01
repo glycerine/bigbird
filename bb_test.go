@@ -50,6 +50,15 @@ func TestConstantExpressions(t *testing.T) {
 				cv.So(toScheme(`"I have \"double\" quotes"`), cv.ShouldEqual, `"I have \"double\" quotes"`)
 			})
 		})
+
+		cv.Convey("When we evaluate //scm: comments", func() {
+			cv.Convey("they should turn into pass-through scheme code", func() {
+				cv.So(toScheme(`//scm:(write "hello")`), cv.ShouldEqual, `(write "hello")`)
+				cv.So(toScheme(`// just a comment`), cv.ShouldEqual, `;;// just a comment`)
+
+			})
+		})
+
 	})
 }
 
