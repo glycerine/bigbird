@@ -9,7 +9,7 @@ import (
 
 // testing helper that panics on bad out
 func toScheme(line string) string {
-	s, err := TranslateToScheme(line)
+	s, err := TranslateToScheme(line, emptyAccum)
 	if err != nil {
 		panic(err)
 	}

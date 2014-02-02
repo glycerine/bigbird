@@ -37,7 +37,7 @@ func ParseStmt(line string) ([]string, error) {
 	switch firstStmt.(type) {
 	case *ast.ExprStmt:
 		x := firstStmt.(*ast.ExprStmt)
-		tx, err := TranslateExpr(&(x.X))
+		tx, err := TranslateExpr(x.X)
 		if err != nil {
 			return r, err
 		}
