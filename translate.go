@@ -174,21 +174,30 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 		//goon.Dump(ty)
 	}
 
-	src, err := ParseStmt(lastStmt, line, ac)
+	schemeLines, err := ParseStmt(lastStmt, line, ac)
 
 	if err != nil {
 		errList = append(errList, err)
 	}
-	if !skipSave && !shouldSkipSavingLine(line, errList) {
+	if !skipSave && !shouldSkipSavingLine(line, errList) &&
+		// we also skip saving if we didn't get a scheme version back:
+		len(schemeLines) > 0 && len(schemeLines[0]) > 0 {
+
 		//fmt.Printf("bb: no type-check errors detected, saving statement.\n")
 		//tmp.goLine = append(tmp.goLine, line)
 
 		*ac = tmp
-		//fmt.Printf("bb: total source after line '%s' is now:\n======\n%v\n======\n", line, ac.GenCode())
+		start := len(ac.schLine)
+		ac.schLine = append(ac.schLine, schemeLines...)
+		end := len(ac.schLine)
+		myGoLine := len(ac.goLine) - 1
+		ac.go2sch[myGoLine] = []int{start, end}
 
-		return src, nil
+		//fmt.Printf("bb kept line: total source after line '%s' -> %d:'%v' is now:\n======\n%v\n======\n", line, len(schemeLines), schemeLines, ac.GenCode())
+
+		return schemeLines, nil
 	}
-	//fmt.Printf("bb: total source after line '%s' is now:\n======\n%v\n======\n", line, ac.GenCode())
+	//fmt.Printf("bb skipped line: total source after line '%s' is now:\n======\n%v\n======\n", line, ac.GenCode())
 
-	return src, nil
+	return schemeLines, nil
 }

@@ -9,7 +9,8 @@ import (
 
 // testing helper that panics on bad out
 func toScheme(line string) string {
-	s, err := TranslateToScheme(line, emptyAccum)
+	anew := NewAccum()
+	s, err := TranslateToScheme(line, anew)
 	if err != nil {
 		panic(err)
 	}
@@ -73,6 +74,7 @@ func TestIntegerVariables(t *testing.T) {
 	cv.Convey("Given a birdbrain repl", t, func() {
 		cv.Convey("When we declare and assign an integer variable", func() {
 			cv.Convey("then we should get a scheme define expression in return. ", func() {
+
 				cv.So(toScheme("a := 23"), cv.ShouldEqual, "(define a 23)")
 				cv.So(toScheme(`str := "twentythree"`), cv.ShouldEqual, `(define str "twentythree")`)
 			})
