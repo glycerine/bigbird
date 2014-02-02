@@ -156,5 +156,11 @@ func TestBinop(t *testing.T) {
 			})
 		})
 
+		cv.Convey("When we define an increment function; func incr(x int) int { return x + 1 }", func() {
+			cv.Convey("then we should get (define (incr x) (+ x 1)) in scheme.", func() {
+				cv.So(toScheme("func incr(x int) int { return x + 1 }"), cv.ShouldEqual, "(define (incr x) (+ x 1))")
+			})
+		})
+
 	})
 }
