@@ -203,7 +203,7 @@ func buildPackage(pkg *Package) error {
 	packages[pkg.ImportPath] = pkg
 
 	if pkg.ImportPath == "runtime" {
-		fmt.Println(`note: run "gopherjs install -all -v" once to speed up builds`)
+		//fmt.Println(`note: run "gopherjs install -all -v" once to speed up builds`)
 	}
 
 	return nil

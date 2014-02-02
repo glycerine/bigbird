@@ -12,7 +12,7 @@ import (
 
 	"code.google.com/p/go.tools/go/gcimporter"
 	"code.google.com/p/go.tools/go/types"
-	"github.com/neelance/gopherjs/gcexporter"
+	"github.com/glycerine/bigbird/gcexporter"
 )
 
 var sizes32 = &types.StdSizes{WordSize: 4, MaxAlign: 8}
