@@ -130,6 +130,8 @@ func TestBinop(t *testing.T) {
 
 				cv.So(toScheme("true && false"), cv.ShouldEqual, "(and #t #f)")
 				cv.So(toScheme("true || false"), cv.ShouldEqual, "(or #t #f)")
+				cv.So(toScheme("!false"), cv.ShouldEqual, "(not #f)")
+				cv.So(toScheme("!true"), cv.ShouldEqual, "(not #t)")
 
 				cv.So(toScheme("5 &^ 1"), cv.ShouldEqual, "(bitwise-and 5 (bitwise-not 1))") // == 4
 

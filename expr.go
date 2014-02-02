@@ -73,6 +73,12 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 		return call
 
 		// derived from gopherjs/expressions.go code
+	case *ast.UnaryExpr:
+		switch e.Op {
+		case token.NOT:
+			return fmt.Sprintf("(not %s)", c.translateExpr(e.X))
+		}
+
 	case *ast.BinaryExpr:
 		if e.Op == token.NEQ {
 			s := c.translateExpr(&ast.BinaryExpr{
@@ -160,7 +166,6 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 				return fmt.Sprintf("(and %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 			case token.LOR:
-				// alt: logior
 				return fmt.Sprintf("(or %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 			default:
