@@ -124,9 +124,6 @@ func TestBinop(t *testing.T) {
 				cv.So(toScheme("4 | 1"), cv.ShouldEqual, "(bitwise-ior 4 1)") // == 5
 				cv.So(toScheme("5 & 1"), cv.ShouldEqual, "(bitwise-and 5 1)") // == 1
 
-				// ~5 isn't a legal golang expression.
-				//cv.So(toScheme("~5"), cv.ShouldEqual, "(bitwise-not 5)")      // 4611686018427387898
-
 				cv.So(toScheme("true && false"), cv.ShouldEqual, "(and #t #f)")
 				cv.So(toScheme("true || false"), cv.ShouldEqual, "(or #t #f)")
 
@@ -141,6 +138,13 @@ func TestBinop(t *testing.T) {
 				cv.So(toScheme("!true"), cv.ShouldEqual, "(not #t)")
 				cv.So(toScheme("b := -a"), cv.ShouldEqual, "(define b (- a))")
 
+				// ~5 isn't a legal golang expression, but ^5 means bitwise compliment:
+				cv.So(toScheme("^5"), cv.ShouldEqual, "(bitwise-not-likely-wrong! 5)") // 4611686018427387898
+				// -6 in goland, signed.
+				// 18446744073709551610 in golang; this is the unsigned, full 64-bits minus 5 version
+				// i.e. 2^64 == 18446744073709551616
+				// but note that (bitwise-not 5) in scheme is:
+				// 4611686018427387898 in scheme, 2 bits (4x) less, indicating scheme is using 62-bit fixnums.
 			})
 		})
 

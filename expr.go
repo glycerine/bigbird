@@ -79,6 +79,8 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 			return fmt.Sprintf("(not %s)", c.translateExpr(e.X))
 		case token.SUB:
 			return fmt.Sprintf("(- %s)", c.translateExpr(e.X))
+		case token.XOR: // ^5
+			return fmt.Sprintf("(bitwise-not-likely-wrong! %s)", c.translateExpr(e.X))
 		}
 
 	case *ast.BinaryExpr:

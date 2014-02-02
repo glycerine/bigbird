@@ -30,4 +30,11 @@ func main() { // %    /
 	andNot(7, 2)
 	andNot(7, 1)
 	andNot(7, 0)
+
+	var v int = 5
+	fmt.Printf("signed ^5 == %d\n", ^v)
+
+	var u uint = 5
+	fmt.Printf("unsigned ^5 == %d\n", ^u)
+
 }

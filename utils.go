@@ -11,6 +11,10 @@ func is64Bit(t *types.Basic) bool {
 	return t.Kind() == types.Int64 || t.Kind() == types.Uint64 || t.Kind() == types.UntypedInt
 }
 
+func isUntypedInt(t *types.Basic) bool {
+	return t.Kind() == types.UntypedInt
+}
+
 func encodeString(s string) string {
 	buffer := bytes.NewBuffer(nil)
 	for _, r := range []byte(s) {
