@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"
+	"strings"
+)
 
 func Q(x int, y int) {
 	fmt.Printf("r ==  %d %% %d == %d,   and q == x/y = %d\n", x, y, x%y, x/y)
@@ -38,4 +42,24 @@ func main() { // %    /
 	fmt.Printf("unsigned ^5 == %d\n", ^u)
 
 	fmt.Printf("5 &^ 1 == %d\n", 5&^1)
+
+	is, nm := isFuncDefinition("func hi()")
+	fmt.Printf("%#v : %v\n", nm, is)
+}
+
+func incr(x int) int { return x + 1 }
+
+var FuncNameRegex = regexp.MustCompile(`^[\t ]*func[\t ]+([^( ]+)[\t ]*[(]`)
+
+func isFuncDefinition(line string) (bool, string) {
+	trimmed := strings.TrimLeft(line, "\t ")
+	if strings.HasPrefix(trimmed, "func ") {
+		name := FuncNameRegex.FindStringSubmatch(line)
+		fmt.Printf("name is %#v\n", name)
+		if name == nil || len(name) < 2 {
+			return false, ""
+		}
+		return true, name[1]
+	}
+	return false, ""
 }

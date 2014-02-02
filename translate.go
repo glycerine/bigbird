@@ -6,6 +6,8 @@ import (
 	"go/parser"
 	"go/token"
 	"strings"
+
+	"github.com/shurcooL/go-goon"
 )
 
 func TranslateToScheme(line string, ac *Accum) ([]string, error) {
@@ -85,7 +87,17 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 	fset := token.NewFileSet()
 
 	tmp := *ac
-	tmp.goLine = append(ac.goLine, line)
+
+	targetMain := false
+	isFuncDefn, targetFuncName := isFuncDefinition(line)
+	if isFuncDefn {
+		tmp.preTypes = append(ac.preTypes, line)
+		targetMain = false
+	} else {
+		targetFuncName = "main"
+		tmp.goLine = append(ac.goLine, line)
+		targetMain = true
+	}
 
 	wrap := tmp.GenCode()
 	//fmt.Printf("wrap from tmp.GenCode() is:\n%#v\n", wrap)
@@ -129,7 +141,7 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 		//goon.Dump(f.Decls[i])
 		fun, ok := f.Decls[i].(*ast.FuncDecl)
 		if ok {
-			if fun.Name.Name == "main" {
+			if fun.Name.Name == targetFuncName {
 				mainLoc = i
 				break
 				//fmt.Printf("we found main at index %d of f.Decls\n", i)
@@ -150,6 +162,10 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 	mainParse := f.Decls[mainLoc].(*ast.FuncDecl)
 	body := mainParse.Body
 	//	fmt.Printf("\n bird: f.Decls[0].Body is: %#v\n", body)
+
+	if !targetMain && targetFuncName != "main" && targetFuncName != "" {
+		return CreateFunctionDefinition(line, ac, targetFuncName, mainParse)
+	}
 
 	blen := len(body.List)
 	lastStmt := body.List[blen-1]
@@ -199,6 +215,15 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 		return schemeLines, nil
 	}
 	//fmt.Printf("bb skipped line: total source after line '%s' is now:\n======\n%v\n======\n", line, ac.GenCode())
+
+	return schemeLines, nil
+}
+
+func CreateFunctionDefinition(line string, ac *Accum, targetFuncName string, ast *ast.FuncDecl) ([]string, error) {
+	schemeLines := []string{}
+
+	fmt.Printf("CreateFunctionDefinition() called with ast for function %v:\n", targetFuncName)
+	goon.Dump(ast)
 
 	return schemeLines, nil
 }
