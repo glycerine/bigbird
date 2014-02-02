@@ -157,15 +157,11 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 
 			// see go/src/pkg/go/token/token.go for enum definition of token. types.
 			case token.LAND:
-				// alt: logand
-				//return fmt.Sprintf("(and %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 				return fmt.Sprintf("(and %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 			case token.LOR:
 				// alt: logior
 				return fmt.Sprintf("(or %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
-				//			case token.XOR:
-				//				return fmt.Sprintf("(logxor %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 			default:
 				panic(e.Op)
@@ -250,7 +246,7 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 					return fmt.Sprintf("(bitwise-xor %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 				case token.AND_NOT: // bitwise clear
-					return c.formatExpr("new %3s(%1h &~ %2h, (%1l &~ %2l) >>> 0)", e.X, e.Y, c.typeName(t))
+					return fmt.Sprintf("(bitwise-and %s (bitwise-not %s))", c.translateExpr(e.X), c.translateExpr(e.Y))
 				default:
 					panic(e.Op)
 				}
