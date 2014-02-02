@@ -140,7 +140,7 @@ func TestBinop(t *testing.T) {
 				cv.So(toScheme("b := -a"), cv.ShouldEqual, "(define b (- a))")
 
 				// ~5 isn't a legal golang expression, but ^5 means bitwise compliment:
-				cv.So(toScheme("^5"), cv.ShouldEqual, "(bitwise-not-likely-wrong! 5)") // 4611686018427387898
+				cv.So(toScheme("^5"), cv.ShouldEqual, "(bitwise-not-is-likely-wrong! 5)") // 4611686018427387898
 				// -6 in goland, signed.
 				// 18446744073709551610 in golang; this is the unsigned, full 64-bits minus 5 version
 				// i.e. 2^64 == 18446744073709551616
