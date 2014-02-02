@@ -78,5 +78,9 @@ func TestIntegerVariables(t *testing.T) {
 				cv.So(toScheme("myVar"), cv.ShouldEqual, "myVar")
 			})
 		})
+
+		cv.Convey("When we assign more than one variable in parallel in the same := stmt, all should be assigned.", func() {
+			cv.So(toScheme("a, b := 10, 12"), cv.ShouldEqual, "(define a 10)(define b 12)")
+		})
 	})
 }

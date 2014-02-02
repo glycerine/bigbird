@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -34,7 +35,7 @@ func ParseStmt(line string) (string, error) {
 	switch firstStmt.(type) {
 	case *ast.ExprStmt:
 		x := firstStmt.(*ast.ExprStmt)
-		return TranslateExpr(x.X)
+		return TranslateExpr(&(x.X))
 
 	case *ast.AssignStmt:
 		//fmt.Printf("bird: *ast.AssignStmt found.\n")
@@ -47,16 +48,25 @@ func ParseStmt(line string) (string, error) {
 		if len(rhs) < 1 {
 			return "", errors.New("no right hand side of assignment")
 		}
-		lhsScm, err := TranslateExpr(lhs[0])
+		lhsScm, err := TranslateExprSlice(lhs)
 		if err != nil {
 			return "", err
 		}
 
-		rhsScm, err := TranslateExpr(rhs[0])
+		rhsScm, err := TranslateExprSlice(rhs)
 		if err != nil {
 			return "", err
 		}
-		return "(define " + lhsScm + " " + rhsScm + ")", nil
+		if len(lhsScm) != len(rhsScm) {
+			return "", errors.New(fmt.Sprintf("syntax err in '%s': left hand side had %d elements, "+
+				"but right-hand side had %d", line, len(lhsScm), len(rhsScm)))
+		}
+		r := ""
+		for i := range lhsScm {
+			r += "(define " + lhsScm[i] + " " + rhsScm[i] + ")"
+		}
+
+		return r, nil
 	}
 
 	return "", nil
