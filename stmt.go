@@ -8,7 +8,7 @@ import (
 	"go/token"
 )
 
-func ParseStmt(line string) ([]string, error) {
+func ParseStmt(line string, ac *Accum) ([]string, error) {
 	//fmt.Printf("bird.ParseStmt() called.\n")
 
 	r := make([]string, 0)

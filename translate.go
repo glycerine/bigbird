@@ -20,7 +20,7 @@ func TranslateToScheme(line string, ac *Accum) ([]string, error) {
 		}
 	}
 
-	src, err := ParseStmt(line)
+	src, err := ParseStmt(line, ac)
 	if err != nil {
 		return r, err
 	}
