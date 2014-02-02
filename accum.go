@@ -19,6 +19,7 @@ import (
 type Accum struct {
 	pkgLine    string
 	importLine []string
+	preTypes   []string
 	pre        []string
 	goLine     []string
 	post       []string
@@ -34,8 +35,28 @@ func NewAccum() *Accum {
 	ac := &Accum{}
 	ac.pkgLine = "package main"
 	ac.importLine = []string{`"fmt"`}
-	ac.pre = []string{`func HelloBirdBrain() { fmt.Printf("HelloBirdBrain() called.\n") }`, "\n", "func main() {"}
+	ac.preTypes = []string{}
+	ac.pre = []string{`func HelloBirdBrain() { fmt.Printf("HelloBirdBrain() called.\n") }`, "func main() {"}
 	ac.post = []string{"}"}
+	ac.ClearCode()
+
+	return ac
+}
+
+// emptyAccum used for one-line evals
+var emptyAccum *Accum = NewAccum()
+
+func (ac *Accum) GenCode() string {
+	code := ac.pkgLine + "\nimport (\n" + strings.Join(ac.importLine, "\n") +
+		"\n)\n" +
+		strings.Join(ac.preTypes, "\n") + "\n" +
+		strings.Join(ac.pre, "\n") + "\n" +
+		strings.Join(ac.goLine, "\n") + "\n" +
+		strings.Join(ac.post, "\n")
+	return code
+}
+
+func (ac *Accum) ClearCode() {
 	ac.goLine = make([]string, 0)
 	ac.go2sch = make(map[int][]int)
 
@@ -45,17 +66,6 @@ func NewAccum() *Accum {
 		Implicits:  make(map[ast.Node]types.Object),
 		Selections: make(map[*ast.SelectorExpr]*types.Selection),
 	}
-
-	return ac
-}
-
-// emptyAccum used for one-line evals
-var emptyAccum *Accum = NewAccum()
-
-func (ac *Accum) GenCode() string {
-	code := ac.pkgLine + "\nimport (\n" + strings.Join(ac.importLine, "\n") + ")\n" + strings.Join(ac.pre, "\n") +
-		strings.Join(ac.goLine, "\n") + strings.Join(ac.post, "\n")
-	return code
 }
 
 type ErrorList []error

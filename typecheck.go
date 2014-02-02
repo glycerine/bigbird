@@ -2,6 +2,9 @@ package main
 
 // Accum and type-checking code
 
+// type checking, derived from the examples in gopherjs, see gopherjs/tool.go and gopherjs/package.go
+// in particular.
+
 import (
 	"fmt"
 	"go/ast"
@@ -20,7 +23,6 @@ import (
 
 func (ac *Accum) Check(fileSet *token.FileSet, files []*ast.File) ErrorList {
 
-	// type checking, derived from the example in gopherjs, see tool.go and package.go
 	var errList ErrorList
 	var previousErr error
 
