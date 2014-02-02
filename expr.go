@@ -159,11 +159,11 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 			case token.LAND:
 				// alt: logand
 				//return fmt.Sprintf("(and %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
-				return fmt.Sprintf("(logand %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+				return fmt.Sprintf("(and %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 			case token.LOR:
 				// alt: logior
-				return fmt.Sprintf("(logior %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+				return fmt.Sprintf("(or %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 				//			case token.XOR:
 				//				return fmt.Sprintf("(logxor %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 

@@ -128,8 +128,8 @@ func TestBinop(t *testing.T) {
 				// ~5 isn't a legal golang expression.
 				//cv.So(toScheme("~5"), cv.ShouldEqual, "(bitwise-not 5)")      // 4611686018427387898
 
-				cv.So(toScheme("true && false"), cv.ShouldEqual, "(logand #t #f)")
-				cv.So(toScheme("true || false"), cv.ShouldEqual, "(logior #t #f)")
+				cv.So(toScheme("true && false"), cv.ShouldEqual, "(and #t #f)")
+				cv.So(toScheme("true || false"), cv.ShouldEqual, "(or #t #f)")
 			})
 		})
 	})
