@@ -21,8 +21,8 @@ func (c *Accum) TranslateExprSlice(e []ast.Expr) []string {
 }
 
 func (c *Accum) translateExpr(expr ast.Expr) string {
-	//fmt.Printf("translateExpr called with e:\n")
-	//goon.Dump(e)
+	//fmt.Printf("translateExpr called with expr:\n")
+	//goon.Dump(expr)
 
 	switch e := expr.(type) {
 	case *ast.Ident:
@@ -77,6 +77,8 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 		switch e.Op {
 		case token.NOT:
 			return fmt.Sprintf("(not %s)", c.translateExpr(e.X))
+		case token.SUB:
+			return fmt.Sprintf("(- %s)", c.translateExpr(e.X))
 		}
 
 	case *ast.BinaryExpr:
@@ -168,12 +170,17 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 			case token.LOR:
 				return fmt.Sprintf("(or %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
+			case token.QUO:
+				return fmt.Sprintf("(/ %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+
 			default:
 				panic(e.Op)
 			}
 		}
 		if isBasic && isNum != 0 {
 			if is64Bit(basic) {
+				// integer operations (see below for floating-point ops)
+
 				//fmt.Printf("e is %#v\n", e)
 				switch e.Op {
 				case token.SHL:
@@ -254,6 +261,17 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 					return fmt.Sprintf("(bitwise-and %s (bitwise-not %s))", c.translateExpr(e.X), c.translateExpr(e.Y))
 				default:
 					panic(e.Op)
+				}
+			} else {
+				// floating point op
+				switch e.Op {
+				case token.QUO:
+					return fmt.Sprintf("(/ %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+				case token.EQL:
+					return fmt.Sprintf("(equal? %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+				case token.MUL, token.LSS, token.LEQ, token.GTR, token.GEQ, token.ADD, token.SUB:
+					return fmt.Sprintf("(%s %s %s)", e.Op.String(), c.translateExpr(e.X), c.translateExpr(e.Y))
+
 				}
 			}
 		}

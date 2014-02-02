@@ -116,7 +116,6 @@ func TestBinop(t *testing.T) {
 				cv.So(toScheme("5 % 2"), cv.ShouldEqual, "(remainder 5 2)")
 
 				cv.So(toScheme("5 / 2"), cv.ShouldEqual, "(quotient 5 2)") // integer division
-				//cv.So(toScheme("5.0 / 2.0"), cv.ShouldEqual, "(/ 5.0 2.0)") // floating-point
 				cv.So(toScheme("1 << 3"), cv.ShouldEqual, "(arithmetic-shift 1 3)")
 				cv.So(toScheme("32 >> 3"), cv.ShouldEqual, "(arithmetic-shift 32 (- 3))")
 				cv.So(toScheme("32 == 3"), cv.ShouldEqual, "(equal? 32 3)")
@@ -130,12 +129,27 @@ func TestBinop(t *testing.T) {
 
 				cv.So(toScheme("true && false"), cv.ShouldEqual, "(and #t #f)")
 				cv.So(toScheme("true || false"), cv.ShouldEqual, "(or #t #f)")
-				cv.So(toScheme("!false"), cv.ShouldEqual, "(not #f)")
-				cv.So(toScheme("!true"), cv.ShouldEqual, "(not #t)")
 
 				cv.So(toScheme("5 &^ 1"), cv.ShouldEqual, "(bitwise-and 5 (bitwise-not 1))") // == 4
 
 			})
 		})
+
+		cv.Convey("When we use unary-operations", func() {
+			cv.Convey("then we should get the prefix notation.", func() {
+				cv.So(toScheme("!false"), cv.ShouldEqual, "(not #f)")
+				cv.So(toScheme("!true"), cv.ShouldEqual, "(not #t)")
+				cv.So(toScheme("b := -a"), cv.ShouldEqual, "(define b (- a))")
+
+			})
+		})
+
+		cv.Convey("When we use floating-point division, that is: a / b, for floating-point a or b", func() {
+			cv.Convey("then we should get the prefix notation (/ a b).", func() {
+				cv.So(toScheme("5.0 / 2.0"), cv.ShouldEqual, "(/ 5.0 2.0)") // floating-point
+				cv.So(toScheme("a / b"), cv.ShouldEqual, "(/ a b)")         // floating-point
+			})
+		})
+
 	})
 }
