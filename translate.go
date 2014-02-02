@@ -11,24 +11,28 @@ import (
 	goon "github.com/shurcooL/go-goon"
 )
 
-func TranslateToScheme(line string) (string, error) {
+func TranslateToScheme(line string) ([]string, error) {
 	// TODO: implement the translation from go to scheme
+
+	r := make([]string, 0)
 
 	tr := strings.TrimLeft(line, "\t ")
 	if len(tr) >= 2 && tr[0] == '/' && tr[1] == '/' {
 		//fmt.Printf("detected // comment\n")
 		if len(tr) > 6 && tr[:6] == "//scm:" {
 			//fmt.Printf("detected //scm: comment, passing through the rest of the line : '%s'.\n", tr[6:])
-			return tr[6:], nil
+			r = append(r, tr[6:])
+			return r, nil
 		} else {
-			return ";;" + line, nil
+			r = append(r, ";;"+line)
+			return r, nil
 		}
 	}
 
 	expr, err := parser.ParseExpr(line)
 	if err != nil {
 		fmt.Printf("parse error: %v\n", err)
-		return "", err
+		return r, err
 	}
 	if expr == nil {
 		fmt.Printf("\nexpr returned was nil\n")
@@ -44,12 +48,15 @@ func TranslateToScheme(line string) (string, error) {
 	switch expr.(type) {
 	case *ast.Ident:
 		// not a simple expression, we need to parse bigger
-		myIdent := expr.(*ast.Ident).Name
+		//myIdent := expr.(*ast.Ident).Name
 		src, err := ParseStmt(line)
-		if err != nil && src == "" {
-			return myIdent, err
+		if err != nil {
+			return r, err
 		}
-		return src, err
+		for i := range src {
+			r = append(r, src[i])
+		}
+		return r, err
 
 	case *ast.BasicLit:
 		e := expr.(*ast.BasicLit)
@@ -64,7 +71,8 @@ func TranslateToScheme(line string) (string, error) {
 
 				q := strconv.Quote(e.Value[1:(le - 1)])
 				//fmt.Printf(" return Quoted string: '%s'\n", q)
-				return q, nil
+				r = append(r, q)
+				return r, nil
 
 				/*
 					unq, err := strconv.Unquote(e.Value)
@@ -86,7 +94,9 @@ func TranslateToScheme(line string) (string, error) {
 			fmt.Printf("unrecognized token type: %#v\n", e.Kind)
 		}
 
-		return e.Value, nil
+		r = append(r, e.Value)
+		return r, nil
+
 	case *ast.CallExpr:
 		callExpr := expr.(*ast.CallExpr)
 		fun := callExpr.Fun.(*ast.SelectorExpr)
@@ -101,9 +111,11 @@ func TranslateToScheme(line string) (string, error) {
 		goon.Dump(args)
 		argStr := ""
 		call := "(" + pkg + "." + name + " " + argStr + ")"
-		return call, nil
+		r = append(r, call)
+		return r, nil
 	default:
 	}
 
-	return line, nil // stubbed for now
+	r = append(r, line)
+	return r, nil // stubbed for now
 }

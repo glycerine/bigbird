@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 
 	cv "github.com/smartystreets/goconvey/convey"
@@ -12,7 +13,7 @@ func toScheme(line string) string {
 	if err != nil {
 		panic(err)
 	}
-	return s
+	return strings.Join(s, "")
 }
 
 /*
