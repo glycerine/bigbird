@@ -14,19 +14,52 @@ func ParseStmt(line string, ac *Accum) ([]string, error) {
 	r := make([]string, 0)
 
 	fset := token.NewFileSet()
-	wrap := "package main; func main() { " + line + " }"
+
+	ac.goLine = []string{line}
+	wrap := ac.GenCode()
+	//fmt.Printf("wrap from ac.GenCode() is:\n%#v\n", wrap)
+
+	// parse
 	f, err := parser.ParseFile(fset, "", wrap, parser.ParseComments|parser.DeclarationErrors)
 	if err != nil {
 		panic(err)
 	}
 
-	//	fmt.Printf("\n bird: ParseFile output *ast.File, f is :\n")
-	//	goon.Dump(f)
+	// type-check
+	errList := ac.Check(fset, []*ast.File{f})
 
-	//	fmt.Printf("\n bird: f.Decls[0] is: \n")
-	//	goon.Dump(f.Decls[0])
+	if len(errList) > 0 {
 
-	mainParse := f.Decls[0].(*ast.FuncDecl)
+	}
+
+	//fmt.Printf("\n bird: ParseFile output *ast.File, f is :\n")
+	//goon.Dump(f)
+
+	//fmt.Printf("\n bird: len(f.Decls[0]) is: %d\n", len(f.Decls))
+	mainLoc := -1
+	for i := range f.Decls {
+		//fmt.Printf("\n bird expose: decl[%d] = \n", i)
+		//goon.Dump(f.Decls[i])
+		fun, ok := f.Decls[i].(*ast.FuncDecl)
+		if ok {
+			if fun.Name.Name == "main" {
+				mainLoc = i
+				//fmt.Printf("we found main at index %d of f.Decls\n", i)
+			} else {
+				//fmt.Printf("index %d of f.Decls was a FuncDecl but not called main().\n", i)
+			}
+		} else {
+			//fmt.Printf("index %d of f.Decls was not a FuncDecl.\n", i)
+		}
+	}
+	//fmt.Printf("\n bird: f.Decls[0] is: \n")
+	//goon.Dump(f.Decls[0])
+
+	//genDecl := f.Decls[0].(*ast.GenDecl)
+	//fmt.Printf("\n bird: genDecl is: \n")
+	//goon.Dump(genDecl)
+
+	mainParse := f.Decls[mainLoc].(*ast.FuncDecl)
 	body := mainParse.Body
 	//	fmt.Printf("\n bird: f.Decls[0].Body is: %#v\n", body)
 

@@ -3,8 +3,15 @@ package main
 // Accum and type-checking code
 
 import (
+	"fmt"
 	"go/ast"
+	"go/build"
+	"go/token"
+	"os"
+	"path/filepath"
 	"strings"
+	"time"
+	"github.com/glycerine/bigbird/translator"
 
 	"code.google.com/p/go.tools/go/types"
 )
@@ -26,7 +33,7 @@ type Accum struct {
 func NewAccum() *Accum {
 	ac := &Accum{}
 	ac.pkgLine = "package main"
-	ac.importLine = []string{"fmt"}
+	ac.importLine = []string{`"fmt"`}
 	ac.pre = []string{`func HelloBirdBrain() { fmt.Printf("HelloBirdBrain() called.\n") }`, "\n", "func main() {"}
 	ac.post = []string{"}"}
 	ac.goLine = make([]string, 0)
@@ -42,6 +49,7 @@ func NewAccum() *Accum {
 	return ac
 }
 
+// emptyAccum used for one-line evals
 var emptyAccum *Accum = NewAccum()
 
 func (ac *Accum) GenCode() string {
@@ -53,4 +61,34 @@ func (ac *Accum) GenCode() string {
 type ErrorList []error
 
 var sizes32 = &types.StdSizes{WordSize: 4, MaxAlign: 8}
+
+// tool.go
+var fileSet = token.NewFileSet()
+var packages = make(map[string]*Package)
+
+var verboseInstall = false
+var packagesToTest = make(map[string]bool)
 var typesPackages = make(map[string]*types.Package)
+
+type Package struct {
+	*build.Package
+	SrcModTime time.Time
+	UpToDate   bool
+	Output     *translator.Output
+}
+
+var currentDirectory, goRoot, goPath string
+
+func init() {
+	var err error
+	currentDirectory, err = os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	currentDirectory, err = filepath.EvalSymlinks(currentDirectory)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
