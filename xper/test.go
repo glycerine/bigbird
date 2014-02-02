@@ -37,4 +37,5 @@ func main() { // %    /
 	var u uint = 5
 	fmt.Printf("unsigned ^5 == %d\n", ^u)
 
+	fmt.Printf("5 &^ 1 == %d\n", 5&^1)
 }
