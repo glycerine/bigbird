@@ -16,18 +16,6 @@ func init() {
 	for _, keyword := range []string{"abstract", "arguments", "boolean", "break", "byte", "case", "catch", "char", "class", "const", "continue", "debugger", "default", "delete", "do", "double", "else", "enum", "eval", "export", "extends", "false", "final", "finally", "float", "for", "function", "goto", "if", "implements", "import", "in", "instanceof", "int", "interface", "let", "long", "native", "new", "package", "private", "protected", "public", "return", "short", "static", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof", "var", "void", "volatile", "while", "with", "yield"} {
 		ReservedKeywords[keyword] = true
 	}
-
-	// jea:
-	// and the golang reserved words, i.e. from
-	// http://golang.org/ref/spec#Keywords
-	for _, keyword := range []string{"break",
-		"default", "func", "interface", "select",
-		"case", "defer", "go", "map", "struct",
-		"chan", "else", "goto", "package", "switch",
-		"const", "fallthrough", "if", "range", "type",
-		"continue", "for", "import", "return", "var"} {
-		ReservedKeywords[keyword] = true
-	}
 }
 
 type ErrorList []error
@@ -691,3 +679,13 @@ func (v *VarDependencyCollector) Visit(node ast.Node) (w ast.Visitor) {
 	}
 	return v
 }
+
+// type DependencyAnalysis struct {
+// }
+
+// func (v *DependencyAnalysis) Visit(node ast.Node) (w ast.Visitor) {
+// 	switch n := node.(type) {
+
+// 	}
+// 	return v
+// }

@@ -12,11 +12,12 @@ func ParseStmt(firstStmt ast.Stmt, line string, ac *Accum) ([]string, error) {
 	r := make([]string, 0)
 
 	switch firstStmt.(type) {
+
 	case *ast.ExprStmt:
 		x := firstStmt.(*ast.ExprStmt)
-		tx, err := TranslateExpr(x.X)
-		if err != nil {
-			return r, err
+		tx := ac.translateExpr(x.X)
+		if ac.err != nil {
+			return r, ac.err
 		}
 		r = append(r, tx)
 		return r, nil
@@ -32,14 +33,14 @@ func ParseStmt(firstStmt ast.Stmt, line string, ac *Accum) ([]string, error) {
 		if len(rhs) < 1 {
 			return r, errors.New("no right hand side of assignment")
 		}
-		lhsScm, err := TranslateExprSlice(lhs)
-		if err != nil {
-			return r, err
+		lhsScm := ac.TranslateExprSlice(lhs)
+		if ac.err != nil {
+			return r, ac.err
 		}
 
-		rhsScm, err := TranslateExprSlice(rhs)
-		if err != nil {
-			return r, err
+		rhsScm := ac.TranslateExprSlice(rhs)
+		if ac.err != nil {
+			return r, ac.err
 		}
 		if len(lhsScm) != len(rhsScm) {
 			return r, errors.New(fmt.Sprintf("syntax err in '%s': left hand side had %d elements, "+

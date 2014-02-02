@@ -17,6 +17,23 @@ import (
 )
 
 type Accum struct {
+	// from translator.PkgContext, but we can't directly
+	// reuse them because they are lower-case private. Ugh.
+	pkg           *types.Package
+	info          *types.Info
+	pkgVars       map[string]string
+	objectVars    map[types.Object]string
+	allVarNames   map[string]int
+	funcVarNames  []string
+	functionSig   *types.Signature
+	resultNames   []ast.Expr
+	postLoopStmt  map[string]ast.Stmt
+	escapingVars  []string
+	output        []byte
+	delayedOutput []byte
+	indentation   int
+	positions     map[int]token.Pos
+
 	pkgLine    string
 	importLine []string
 	preTypes   []string
@@ -27,8 +44,7 @@ type Accum struct {
 	go2sch  map[int][]int // map goLine indices to schLine indices
 	schLine []string
 
-	info *types.Info
-	pkg  *types.Package
+	err error
 }
 
 func NewAccum() *Accum {

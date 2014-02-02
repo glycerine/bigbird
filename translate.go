@@ -131,6 +131,7 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 		if ok {
 			if fun.Name.Name == "main" {
 				mainLoc = i
+				break
 				//fmt.Printf("we found main at index %d of f.Decls\n", i)
 			} else {
 				//fmt.Printf("index %d of f.Decls was a FuncDecl but not called main().\n", i)

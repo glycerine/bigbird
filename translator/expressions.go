@@ -2,14 +2,13 @@ package translator
 
 import (
 	"bytes"
+	"code.google.com/p/go.tools/go/exact"
+	"code.google.com/p/go.tools/go/types"
 	"fmt"
 	"go/ast"
 	"go/token"
 	"strconv"
 	"strings"
-
-	"code.google.com/p/go.tools/go/exact"
-	"code.google.com/p/go.tools/go/types"
 )
 
 func (c *PkgContext) translateExpr(expr ast.Expr) string {
@@ -22,7 +21,6 @@ func (c *PkgContext) translateExpr(expr ast.Expr) string {
 		switch {
 		case basic.Info()&types.IsBoolean != 0:
 			return strconv.FormatBool(exact.BoolVal(value))
-
 		case basic.Info()&types.IsInteger != 0:
 			if is64Bit(basic) {
 				d, _ := exact.Uint64Val(value)
@@ -36,7 +34,6 @@ func (c *PkgContext) translateExpr(expr ast.Expr) string {
 		case basic.Info()&types.IsFloat != 0:
 			f, _ := exact.Float64Val(value)
 			return strconv.FormatFloat(f, 'g', -1, 64)
-
 		case basic.Info()&types.IsComplex != 0:
 			r, _ := exact.Float64Val(exact.Real(value))
 			i, _ := exact.Float64Val(exact.Imag(value))
@@ -44,16 +41,14 @@ func (c *PkgContext) translateExpr(expr ast.Expr) string {
 				exprType = types.Typ[types.Complex128]
 			}
 			return fmt.Sprintf("new %s(%s, %s)", c.typeName(exprType), strconv.FormatFloat(r, 'g', -1, 64), strconv.FormatFloat(i, 'g', -1, 64))
-
 		case basic.Info()&types.IsString != 0:
 			return encodeString(exact.StringVal(value))
 		default:
 			panic("Unhandled constant type: " + basic.String())
 		}
-	} // end if value != nil
+	}
 
 	switch e := expr.(type) {
-
 	case *ast.CompositeLit:
 		if ptrType, isPointer := exprType.(*types.Pointer); isPointer {
 			exprType = ptrType.Elem()
@@ -850,8 +845,7 @@ func (c *PkgContext) translateExpr(expr ast.Expr) string {
 	default:
 		panic(fmt.Sprintf("Unhandled expression: %T\n", e))
 
-	} // end switch e := expr.(type)
-
+	}
 }
 
 func (c *PkgContext) formatExpr(format string, a ...interface{}) string {

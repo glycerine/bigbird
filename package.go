@@ -51,3 +51,11 @@ func (c *Accum) initArgs(ty types.Type) string {
 		panic("invalid type")
 	}
 }
+
+func (c *Accum) typeArray(t *types.Tuple) string {
+	s := make([]string, t.Len())
+	for i := range s {
+		s[i] = c.typeName(t.At(i).Type())
+	}
+	return "[" + strings.Join(s, ", ") + "]"
+}

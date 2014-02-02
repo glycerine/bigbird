@@ -2,17 +2,16 @@ package translator
 
 import (
 	"bytes"
+	"code.google.com/p/go.tools/go/gcimporter"
+	"code.google.com/p/go.tools/go/types"
 	"encoding/asn1"
 	"fmt"
+	"github.com/neelance/gopherjs/gcexporter"
 	"go/ast"
 	"io"
 	"sort"
 	"strconv"
 	"strings"
-
-	"code.google.com/p/go.tools/go/gcimporter"
-	"code.google.com/p/go.tools/go/types"
-	"github.com/glycerine/bigbird/gcexporter"
 )
 
 var sizes32 = &types.StdSizes{WordSize: 4, MaxAlign: 8}
@@ -475,37 +474,34 @@ func elemType(ty types.Type) types.Type {
 }
 
 func encodeString(s string) string {
-	return s //jea
-	/*jea
-		buffer := bytes.NewBuffer(nil)
-		for _, r := range []byte(s) {
-			switch r {
-			case '\b':
-				buffer.WriteString(`\b`)
-			case '\f':
-				buffer.WriteString(`\f`)
-			case '\n':
-				buffer.WriteString(`\n`)
-			case '\r':
-				buffer.WriteString(`\r`)
-			case '\t':
-				buffer.WriteString(`\t`)
-			case '\v':
-				buffer.WriteString(`\v`)
-			case '"':
-				buffer.WriteString(`\"`)
-			case '\\':
-				buffer.WriteString(`\\`)
-			default:
-				if r < 0x20 || r > 0x7E {
-					fmt.Fprintf(buffer, `\x%02X`, r)
-					continue
-				}
-				buffer.WriteByte(r)
+	buffer := bytes.NewBuffer(nil)
+	for _, r := range []byte(s) {
+		switch r {
+		case '\b':
+			buffer.WriteString(`\b`)
+		case '\f':
+			buffer.WriteString(`\f`)
+		case '\n':
+			buffer.WriteString(`\n`)
+		case '\r':
+			buffer.WriteString(`\r`)
+		case '\t':
+			buffer.WriteString(`\t`)
+		case '\v':
+			buffer.WriteString(`\v`)
+		case '"':
+			buffer.WriteString(`\"`)
+		case '\\':
+			buffer.WriteString(`\\`)
+		default:
+			if r < 0x20 || r > 0x7E {
+				fmt.Fprintf(buffer, `\x%02X`, r)
+				continue
 			}
+			buffer.WriteByte(r)
 		}
-		return `"` + buffer.String() + `"`
-	jea*/
+	}
+	return `"` + buffer.String() + `"`
 }
 
 func isJsObject(t types.Type) bool {

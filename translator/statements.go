@@ -1,13 +1,12 @@
 package translator
 
 import (
+	"code.google.com/p/go.tools/go/exact"
+	"code.google.com/p/go.tools/go/types"
 	"fmt"
 	"go/ast"
 	"go/token"
 	"strings"
-
-	"code.google.com/p/go.tools/go/exact"
-	"code.google.com/p/go.tools/go/types"
 )
 
 func (c *PkgContext) translateStmtList(stmts []ast.Stmt) {

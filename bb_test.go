@@ -66,6 +66,14 @@ func TestConstantExpressions(t *testing.T) {
 			})
 		})
 
+		cv.Convey("When we evaluate boolean literals", func() {
+			cv.Convey("true in golang should become #t in scheme.", func() {
+				cv.So(toScheme("true"), cv.ShouldEqual, "#t")
+			})
+			cv.Convey("false in golang should become #f in scheme.", func() {
+				cv.So(toScheme("false"), cv.ShouldEqual, "#f")
+			})
+		})
 	})
 }
 
@@ -88,6 +96,41 @@ func TestIntegerVariables(t *testing.T) {
 
 		cv.Convey("When we assign more than one variable in parallel in the same := stmt, all should be assigned.", func() {
 			cv.So(toScheme("a, b := 10, 12"), cv.ShouldEqual, "(define a 10)(define b 12)")
+		})
+	})
+}
+
+func TestBinop(t *testing.T) {
+
+	cv.Convey("Given a birdbrain repl", t, func() {
+		cv.Convey("When we use addition as in: a + b", func() {
+			cv.Convey("then we should get the prefix notation (+ a b)", func() {
+				cv.So(toScheme("2 + 5"), cv.ShouldEqual, "(+ 2 5)")
+			})
+		})
+		cv.Convey("When we use binary-operations in general", func() {
+			cv.Convey("then we should get the prefix notation.", func() {
+				cv.So(toScheme("2 * 5"), cv.ShouldEqual, "(* 2 5)")
+				cv.So(toScheme("2 / 5"), cv.ShouldEqual, "(quotient 2 5)")
+				cv.So(toScheme("2 - 5"), cv.ShouldEqual, "(- 2 5)")
+				cv.So(toScheme("5 % 2"), cv.ShouldEqual, "(remainder 5 2)")
+
+				cv.So(toScheme("5 / 2"), cv.ShouldEqual, "(quotient 5 2)") // integer division
+				//cv.So(toScheme("5.0 / 2.0"), cv.ShouldEqual, "(/ 5.0 2.0)") // floating-point
+				cv.So(toScheme("1 << 3"), cv.ShouldEqual, "(arithmetic-shift 1 3)")
+				cv.So(toScheme("32 >> 3"), cv.ShouldEqual, "(arithmetic-shift 32 (- 3))")
+				cv.So(toScheme("32 == 3"), cv.ShouldEqual, "(equal? 32 3)")
+
+				cv.So(toScheme("5 ^ 1"), cv.ShouldEqual, "(bitwise-xor 5 1)") // == 4
+				cv.So(toScheme("4 | 1"), cv.ShouldEqual, "(bitwise-ior 4 1)") // == 5
+				cv.So(toScheme("5 & 1"), cv.ShouldEqual, "(bitwise-and 5 1)") // == 1
+
+				// ~5 isn't a legal golang expression.
+				//cv.So(toScheme("~5"), cv.ShouldEqual, "(bitwise-not 5)")      // 4611686018427387898
+
+				cv.So(toScheme("true && false"), cv.ShouldEqual, "(logand #t #f)")
+				cv.So(toScheme("true || false"), cv.ShouldEqual, "(logior #t #f)")
+			})
 		})
 	})
 }
