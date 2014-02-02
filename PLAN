@@ -1,0 +1,17 @@
+PLAN of attack:
+
+a) In order to allow type-checking, we accumulate a program of go source code.
+
+    We don't run the entire program each time, as this could be quite slow to run
+      if there has been significant computation up to this point.
+
+    But: keeping full source code, along with a compiled form of it, lets us:
+      1. readily discern the full types of the code in the program.
+      2. Lets us delegate the type-checking to the go-compiler.
+      3. might make it possible to call into subroutines that have already been compiled.
+      4. The source doesn't necessarily need to reflect the logic that has been
+         executed in the history up to this point, but it does need to represent the
+         types thus far defined so that they can be checked.
+
+
+b) after type-checking of accumulated source, turn the most recent line into scheme, and evualate it.
