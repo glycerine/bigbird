@@ -47,7 +47,7 @@ func main() {
 		}
 
 		// step three: evaluate in the chicken-scheme repl
-		fmt.Printf("tranlation to schemeSrc is: '%v'\n", schemeSrc)
+		fmt.Printf("tranlation to schemeSrc is: %#v\n", schemeSrc)
 
 		for i := range schemeSrc {
 			s := gochick.Eval(schemeSrc[i])
