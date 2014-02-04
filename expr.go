@@ -54,28 +54,33 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 
 	case *ast.CallExpr:
 		callExpr := expr.(*ast.CallExpr)
-		fun := callExpr.Fun.(*ast.SelectorExpr)
-		x := fun.X.(*ast.Ident)
-		pkg := x.Name
-		sel := fun.Sel
-		name := sel.Name
-		args := callExpr.Args
-		//fmt.Printf("callExpr pkg:'%s' name:'%s'\n", pkg, name)
-		//goon.Dump(callExpr)
-		//fmt.Printf("args is\n")
-		//goon.Dump(args)
-		argSlice := c.TranslateExprSlice(args)
-		if c.err != nil {
-			return ""
+
+		switch fun := callExpr.Fun.(type) {
+		case *ast.Ident:
+			panic("unimplimented")
+		case *ast.SelectorExpr:
+			x := fun.X.(*ast.Ident)
+			pkg := x.Name
+			sel := fun.Sel
+			name := sel.Name
+			args := callExpr.Args
+			//fmt.Printf("callExpr pkg:'%s' name:'%s'\n", pkg, name)
+			//goon.Dump(callExpr)
+			//fmt.Printf("args is\n")
+			//goon.Dump(args)
+			argSlice := c.TranslateExprSlice(args)
+			if c.err != nil {
+				return ""
+			}
+			call := ""
+			if pkg == "fmt" && name == "Printf" {
+				call = specialCasePrintf(pkg, name, argSlice)
+			} else {
+				argStr := strings.Join(argSlice, " ")
+				call = "(" + pkg + "." + name + " " + argStr + ")"
+			}
+			return call
 		}
-		call := ""
-		if pkg == "fmt" && name == "Printf" {
-			call = specialCasePrintf(pkg, name, argSlice)
-		} else {
-			argStr := strings.Join(argSlice, " ")
-			call = "(" + pkg + "." + name + " " + argStr + ")"
-		}
-		return call
 
 		// derived from gopherjs/expressions.go code
 	case *ast.UnaryExpr:
