@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
 	"github.com/glycerine/bigbird/gochick"
 )
 
@@ -13,7 +14,7 @@ func init() {
 
 func main() {
 
-	fmt.Printf("Welcome the birdbrain repl! press ctrl-d to exit.\n")
+	fmt.Printf("Welcome the arogue repl! press ctrl-d to exit.\n")
 
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -51,7 +52,7 @@ func main() {
 
 		for i := range schemeSrc {
 			s := gochick.Eval(schemeSrc[i])
-			fmt.Printf("chicken-scheme eval result: '%s'\n", s)
+			fmt.Printf("eval result: '%s'\n", s)
 		}
 	}
 }
