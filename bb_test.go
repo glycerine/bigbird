@@ -158,11 +158,11 @@ func TestBinop(t *testing.T) {
 
 		cv.Convey("When we call fmt.Printf to display an object", func() {
 			cv.Convey("it gets turned into a call to (printf)", func() {
-				cv.So(toScheme(`fmt.Printf("hello")`), cv.ShouldEqual, `(printf "hello")`)
+				cv.So(toScheme(`fmt.Printf("hello")`), cv.ShouldEqual, `(pretty-print (printf "hello"))`)
 			})
 			cv.Convey("instances of %%v and %%#v get turned into ~A within the formatting string", func() {
 				cv.So(toScheme(`fmt.Printf("%v %#v\n",a,b)`), cv.ShouldEqual,
-					`(printf "~A ~A\n" a b)`)
+					`(pretty-print (printf "~A ~A\n" a b))`)
 			})
 		})
 

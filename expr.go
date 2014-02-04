@@ -499,5 +499,5 @@ func specialCasePrintf(pkg string, name string, argSlice []string) string {
 	if len(argSlice) > 1 {
 		argStr = " " + strings.Join(argSlice[1:], " ")
 	}
-	return "(printf " + format + argStr + ")"
+	return "(pretty-print (printf " + format + argStr + "))"
 }
