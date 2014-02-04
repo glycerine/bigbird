@@ -237,9 +237,9 @@ func CreateFunctionDefinition(importPath string, line string, c *Accum, targetFu
 		}
 	}
 
-	joinedArgs := strings.Join(argnm, " ")
+	joinedArgs := strings.Join(argnm, ", ")
 
-	returnPre := "(call/cc (lambda (return) "
+	returnPre := ""
 	//ac.translateFunction(fun.Body.List)
 
 	//natives := pkgNatives[importPath]
@@ -262,13 +262,13 @@ func CreateFunctionDefinition(importPath string, line string, c *Accum, targetFu
 	sig := c.info.Objects[fun.Name].(*types.Func).Type().(*types.Signature)
 	c.translateFunctionBody(body, sig)
 	bodySch := strings.TrimRight(string(c.output), "\n")
-	returnPost := "))"
+	returnPost := ""
 
-	funSch := "(define (" + funname + " " + joinedArgs + ") " +
+	funSch := funname + " = function(" + joinedArgs + ") { " +
 		returnPre +
 		bodySch +
 		returnPost +
-		")"
+		" }"
 
 	schemeLines = append(schemeLines, funSch)
 	return schemeLines, nil

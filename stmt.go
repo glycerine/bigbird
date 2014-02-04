@@ -58,22 +58,22 @@ func (c *Accum) translateStmt(stmt ast.Stmt, label string) {
 		}
 		switch len(results) {
 		case 0:
-			c.Printf("(return)")
+			c.Printf("return")
 		case 1:
 			if c.functionSig.Results().Len() > 1 {
-				c.Printf("(return %s)", c.translateExpr(results[0]))
+				c.Printf("return(%s)", c.translateExpr(results[0]))
 				break
 			}
 			v := c.translateImplicitConversion(results[0], c.functionSig.Results().At(0).Type())
 			c.delayedOutput = nil
-			c.Printf("(return %s)", v)
+			c.Printf("return(%s)", v)
 		default:
 			values := make([]string, len(results))
 			for i, result := range results {
 				values[i] = c.translateImplicitConversion(result, c.functionSig.Results().At(i).Type())
 			}
 			c.delayedOutput = nil
-			c.Printf("(return %s)", strings.Join(values, " "))
+			c.Printf("return(%s)", strings.Join(values, " "))
 		}
 
 	case *ast.DeclStmt:
@@ -112,11 +112,11 @@ func (c *Accum) ParseStmt(stmt ast.Stmt, line string) ([]string, error) {
 
 	switch s := stmt.(type) {
 	case *ast.BlockStmt:
-		c.Printf("(begin \n")
+		c.Printf("{\n")
 		c.Indent(func() {
 			c.translateStmtList(s.List)
 		})
-		c.Printf("\n)")
+		c.Printf("}\n)")
 
 	case *ast.ExprStmt:
 		x := stmt.(*ast.ExprStmt)
