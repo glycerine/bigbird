@@ -519,3 +519,64 @@ func (v *HasDeferVisitor) Visit(node ast.Node) (w ast.Visitor) {
 	}
 	return v
 }
+
+func (c *Accum) translateImplicitConversion(expr ast.Expr, desiredType types.Type) string {
+	if desiredType == nil {
+		return c.translateExpr(expr)
+	}
+	if expr == nil {
+		return c.zeroValue(desiredType)
+	}
+
+	switch desiredType.Underlying().(type) {
+	case *types.Struct, *types.Array:
+		if _, isComposite := expr.(*ast.CompositeLit); !isComposite {
+			return c.clone(c.translateExpr(expr), desiredType)
+		}
+	}
+
+	exprType := c.info.Types[expr].Type
+	if types.Identical(exprType, desiredType) {
+		return c.translateExpr(expr)
+	}
+
+	basicExprType, isBasicExpr := exprType.Underlying().(*types.Basic)
+	if isBasicExpr && basicExprType.Kind() == types.UntypedNil {
+		return c.zeroValue(desiredType)
+	}
+
+	switch desiredType.Underlying().(type) {
+	case *types.Slice:
+		return c.formatExpr("go$subslice(new %1s(%2e.array), %2e.offset, %2e.offset + %2e.length)", c.typeName(desiredType), expr)
+
+	case *types.Interface:
+		if isWrapped(exprType) {
+			return fmt.Sprintf("new %s(%s)", c.typeName(exprType), c.translateExpr(expr))
+		}
+		if _, isStruct := exprType.Underlying().(*types.Struct); isStruct {
+			return c.formatExpr("new %1e.constructor.Struct(%1e)", expr)
+		}
+	}
+
+	return c.translateExpr(expr)
+}
+
+func (c *Accum) clone(src string, ty types.Type) string {
+	switch t := ty.Underlying().(type) {
+	case *types.Struct:
+		structVar := c.newVariable("_struct")
+		fields := make([]string, t.NumFields())
+		for i := range fields {
+			fields[i] = c.clone(structVar+"."+fieldName(t, i), t.Field(i).Type())
+		}
+		constructor := structVar + ".constructor"
+		if named, isNamed := ty.(*types.Named); isNamed {
+			constructor = c.objectName(named.Obj()) + ".Ptr"
+		}
+		return fmt.Sprintf("(%s = %s, new %s(%s))", structVar, src, constructor, strings.Join(fields, ", "))
+	case *types.Array:
+		return fmt.Sprintf("go$mapArray(%s, function(entry) { return %s; })", src, c.clone("entry", t.Elem()))
+	default:
+		return src
+	}
+}

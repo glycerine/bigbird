@@ -6,6 +6,7 @@ import (
 	"go/parser"
 	"go/token"
 	"strings"
+	"code.google.com/p/go.tools/go/types"
 
 	"github.com/shurcooL/go-goon"
 )
@@ -219,7 +220,7 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 	return schemeLines, nil
 }
 
-func CreateFunctionDefinition(importPath string, line string, ac *Accum, targetFuncName string, fun *ast.FuncDecl) ([]string, error) {
+func CreateFunctionDefinition(importPath string, line string, c *Accum, targetFuncName string, fun *ast.FuncDecl) ([]string, error) {
 	schemeLines := []string{}
 
 	fmt.Printf("CreateFunctionDefinition() called with fun for function %v:\n", targetFuncName)
@@ -242,15 +243,31 @@ func CreateFunctionDefinition(importPath string, line string, ac *Accum, targetF
 	returnPre := "(call/cc (lambda (return) "
 	//ac.translateFunction(fun.Body.List)
 
-	natives := pkgNatives[importPath]
+	//natives := pkgNatives[importPath]
 
-	ac.translateFunction(fun, natives, false)
-	body := string(ac.output)
+	//	ac.translateFunction(fun, natives, false)
+
+	//	inline/defer the c.newScope call
+	outerVarNames := make(map[string]int, len(c.allVarNames))
+	for k, v := range c.allVarNames {
+		outerVarNames[k] = v
+	}
+	outerFuncVarNames := c.funcVarNames
+	defer func() {
+		c.allVarNames = outerVarNames
+		c.funcVarNames = outerFuncVarNames
+	}()
+	// end c.newScope call manual inline
+
+	body := fun.Body.List
+	sig := c.info.Objects[fun.Name].(*types.Func).Type().(*types.Signature)
+	c.translateFunctionBody(body, sig)
+	bodySch := string(c.output)
 	returnPost := "))"
 
 	funSch := "(define (" + funname + " " + joinedArgs + ") " +
 		returnPre +
-		body +
+		bodySch +
 		returnPost +
 		")"
 

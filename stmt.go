@@ -161,11 +161,6 @@ func (c *Accum) ParseStmt(stmt ast.Stmt, line string) ([]string, error) {
 	return r, nil
 }
 
-func (c *Accum) translateImplicitConversion(expr ast.Expr, desiredType types.Type) string {
-	// stubbed; see code in translator/expression.go
-	return ""
-}
-
 func (c *Accum) translateSimpleStmt(stmt ast.Stmt) string {
 	switch s := stmt.(type) {
 	case *ast.AssignStmt:
