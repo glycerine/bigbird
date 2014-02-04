@@ -380,14 +380,11 @@ func (c *Accum) translateAssign(lhs ast.Expr, rhs string) string {
 		sel := c.info.Selections[l]
 		switch sel.Kind() {
 		case types.FieldVal:
-			panic("unimplemented - jea") // jea
-			/*
-				fields, jsTag := c.translateSelection(sel)
-				if jsTag != "" {
-					return fmt.Sprintf("%s.%s.%s = %s", c.translateExpr(l.X), strings.Join(fields, "."), jsTag, c.externalize(rhs, sel.Type()))
-				}
-				return fmt.Sprintf("%s.%s = %s", c.translateExpr(l.X), strings.Join(fields, "."), rhs)
-			*/
+			fields, jsTag := c.translateSelection(sel)
+			if jsTag != "" {
+				return fmt.Sprintf("%s.%s.%s = %s", c.translateExpr(l.X), strings.Join(fields, "."), jsTag, c.externalize(rhs, sel.Type()))
+			}
+			return fmt.Sprintf("%s.%s = %s", c.translateExpr(l.X), strings.Join(fields, "."), rhs)
 			return ""
 		case types.PackageObj:
 			return c.translateExpr(l.X) + "." + l.Sel.Name + " = " + rhs

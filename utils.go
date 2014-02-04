@@ -84,6 +84,40 @@ func isBlank(expr ast.Expr) bool {
 	return false
 }
 
+func (c *Accum) externalize(s string, t types.Type) string {
+	if isJsObject(t) {
+		return s
+	}
+	switch u := t.Underlying().(type) {
+	case *types.Basic:
+		if u.Info()&types.IsNumeric != 0 && !is64Bit(u) && u.Info()&types.IsComplex == 0 {
+			return s
+		}
+		if u.Kind() == types.UntypedNil {
+			return "null"
+		}
+	}
+	return fmt.Sprintf("go$externalize(%s, %s)", s, c.typeName(t))
+}
+
+func (c *Accum) internalize(s string, t types.Type) string {
+	if isJsObject(t) {
+		return s
+	}
+	switch u := t.Underlying().(type) {
+	case *types.Basic:
+		switch {
+		case u.Info()&types.IsBoolean != 0:
+			return fmt.Sprintf("!!(%s)", s)
+		case u.Info()&types.IsInteger != 0 && !is64Bit(u):
+			return fixNumber(fmt.Sprintf("go$parseInt(%s)", s), u)
+		case u.Info()&types.IsFloat != 0:
+			return fmt.Sprintf("go$parseFloat(%s)", s)
+		}
+	}
+	return fmt.Sprintf("go$internalize(%s, %s)", s, c.typeName(t))
+}
+
 func fieldName(t *types.Struct, i int) string {
 	name := t.Field(i).Name()
 	if name == "_" || ReservedKeywords[name] {

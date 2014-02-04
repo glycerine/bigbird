@@ -507,6 +507,25 @@ func specialCasePrintf(pkg string, name string, argSlice []string) string {
 	return "(pretty-print (printf " + format + argStr + "))"
 }
 
+func fixNumber(value string, basic *types.Basic) string {
+	switch basic.Kind() {
+	case types.Int8:
+		return "(" + value + " << 24 >> 24)"
+	case types.Uint8:
+		return "(" + value + " << 24 >>> 24)"
+	case types.Int16:
+		return "(" + value + " << 16 >> 16)"
+	case types.Uint16:
+		return "(" + value + " << 16 >>> 16)"
+	case types.Int32, types.Int:
+		return "(" + value + " >> 0)"
+	case types.Uint32, types.Uint, types.Uintptr:
+		return "(" + value + " >>> 0)"
+	default:
+		panic(int(basic.Kind()))
+	}
+}
+
 type HasDeferVisitor struct {
 	hasDefer bool
 }
