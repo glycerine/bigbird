@@ -7,7 +7,7 @@ The project is called bigbird. The repl itself is called birdbrain.
 Status: very incomplete, just starting. Run "go test -v" and see bb_test.go (and any other _test.go files that may be added) 
 to discern what tests pass. To summarize: string, boolean and numeric constants work. Assignment works, but swapping with parallel assignment is not special-cased as it should be. Most binary operators work.
 
-If scheme support gets far enough, the eventual plan is to port to Clojure, taking advantage of Clojure's implementation of channels and go-routines, and JVMs mature runtime.
+If scheme support gets far enough, the eventual plan is to port to Clojure, taking advantage of Clojure's implementation of channels and go-routines as well as the mature JVM runtime and library set.
 
 MIT or Apache2 license.
 
