@@ -177,6 +177,8 @@ func TestBinop(t *testing.T) {
 			cv.Convey("then we should get (define (add x y) (+ x y)) in scheme + return handling with call/cc.", func() {
 				cv.So(toScheme("func add(x, y int) int { return x + y }"), cv.ShouldEqual,
 					"(define (add x y) (call/cc (lambda (return) (return (+ x y)))))")
+				cv.So(toScheme("func add(x, y, z int) int { return x + y + z}"), cv.ShouldEqual,
+					"(define (add x y z) (call/cc (lambda (return) (return (+ (+ x y) z)))))")
 			})
 		})
 
