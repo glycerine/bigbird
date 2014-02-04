@@ -1,6 +1,6 @@
 bigbird
 =======
-This is the beginnings of a port of the lovely ([gopherjs (go -> javascript) transpiler](https://github.com/neelance/gopherjs)) to produce a scheme-based repl and transpiler from javascript -> scheme. Uses chicken scheme for its nice incremental gc and easy C integration.
+This is the beginnings of a port of the lovely ([gopherjs (go -> javascript) transpiler](https://github.com/neelance/gopherjs)) to produce a scheme-based repl and transpiler from Go -> scheme. For now we use chicken scheme for its nice incremental gc and easy C integration.
 
 The project is called bigbird. The repl itself is called birdbrain.
 
