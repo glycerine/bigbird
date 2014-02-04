@@ -52,7 +52,7 @@ func TestConstantExpressions(t *testing.T) {
 				cv.So(toScheme(`"I have \"double\" quotes"`), cv.ShouldEqual, `"I have \"double\" quotes"`)
 				cv.So(toScheme("`I have \nnewline`"), cv.ShouldEqual, `"I have \nnewline"`)
 			})
-			cv.Convey("raw strings should not have their back-ticks sent to scheme (since ` is macro defintion in scheme)", func() {
+			cv.Convey("raw strings should not have their back-quotes sent to scheme (since the back-quote ` is used for template defintion in scheme)", func() {
 				cv.So(toScheme("a := `abc he\nya\"`"), cv.ShouldEqual, `(define a "abc he\nya\"")`)
 			})
 
