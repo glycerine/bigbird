@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -29,10 +30,10 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 		id := expr.(*ast.Ident)
 		//fmt.Printf("id.Name is expr.go is: %#v\n", id.Name)
 		if id.Name == "true" {
-			return "#t"
+			return "TRUE"
 		}
 		if id.Name == "false" {
-			return "#f"
+			return "FALSE"
 		}
 		return id.Name
 
@@ -86,14 +87,16 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 	case *ast.UnaryExpr:
 		switch e.Op {
 		case token.NOT:
-			return fmt.Sprintf("(not %s)", c.translateExpr(e.X))
+			return fmt.Sprintf("!%s", c.translateExpr(e.X))
 		case token.SUB:
-			return fmt.Sprintf("(- %s)", c.translateExpr(e.X))
+			return fmt.Sprintf("-%s", c.translateExpr(e.X))
 		case token.XOR: // ^5
-			return fmt.Sprintf("(bitwise-not-is-likely-wrong! %s)", c.translateExpr(e.X))
+			// unlikely to be correct, since bitops uses 32-bit integers only.
+			return fmt.Sprintf("bitFlip(%s, bitwidth=32)", c.translateExpr(e.X))
 		}
 
 	case *ast.BinaryExpr:
+		/* // actually implement NEQ below in proper != form
 		if e.Op == token.NEQ {
 			s := c.translateExpr(&ast.BinaryExpr{
 				X:  e.X,
@@ -102,7 +105,7 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 			})
 			return fmt.Sprintf("(not %s)", s)
 		}
-
+		*/
 		t := c.info.Types[e.X].Type
 		t2 := c.info.Types[e.Y].Type
 
@@ -177,13 +180,13 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 
 			// see go/src/pkg/go/token/token.go for enum definition of token. types.
 			case token.LAND:
-				return fmt.Sprintf("(and %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+				return fmt.Sprintf("%s && %s", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 			case token.LOR:
-				return fmt.Sprintf("(or %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+				return fmt.Sprintf("%s || %s", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 			case token.QUO:
-				return fmt.Sprintf("(/ %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+				return fmt.Sprintf("%s / %s", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 			default:
 				panic(e.Op)
@@ -196,15 +199,18 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 				//fmt.Printf("e is %#v\n", e)
 				switch e.Op {
 				case token.SHL:
-					// alternatively (arithmetic-shift a b) with positive b
-					return fmt.Sprintf("(arithmetic-shift %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					// require(bitops)
+					return fmt.Sprintf("bitShiftL(%s, %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 				case token.SHR:
-					// alternatively (arithmetic-shitf a b) with negative b
-					return fmt.Sprintf("(arithmetic-shift %s (- %s))", c.translateExpr(e.X), c.translateExpr(e.Y))
+					// require(bitops)
+					return fmt.Sprintf("bitShiftR(%s, %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+
+				case token.NEQ:
+					return fmt.Sprintf("%s != %s", c.translateExpr(e.X), c.translateExpr(e.Y))
 				case token.EQL:
-					return fmt.Sprintf("(equal? %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("%s == %s", c.translateExpr(e.X), c.translateExpr(e.Y))
 				case token.MUL, token.LSS, token.LEQ, token.GTR, token.GEQ, token.ADD, token.SUB:
-					return fmt.Sprintf("(%s %s %s)", e.Op.String(), c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("%s %s %s", c.translateExpr(e.X), e.Op.String(), c.translateExpr(e.Y))
 				case token.QUO:
 					/*
 						 in Golang:
@@ -228,7 +234,7 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 					   2
 
 					*/
-					return fmt.Sprintf("(quotient %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("quotient(%s, %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 				case token.REM:
 					// NB Use remainder, not modulo. The modulo operator doesn't satify the % property.
@@ -251,26 +257,26 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 					   #;34> (remainder 5 2)
 					   1
 					*/
-					return fmt.Sprintf("(remainder %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("remainder(%s, %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 				case token.NOT:
-					// alt: lognot
-					return fmt.Sprintf("(bitwise-not %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					panic("NOT isn't a binop!")
+					//return fmt.Sprintf("(bitwise-not %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 				case token.AND:
 					// alt: logand
 					//return fmt.Sprintf("(and %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
-					return fmt.Sprintf("(bitwise-and %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("bitAnd(%s, %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 				case token.OR:
 					// alt: logior
-					return fmt.Sprintf("(bitwise-ior %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("bitOr(%s, %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 				case token.XOR:
 					// alt: logxor
-					return fmt.Sprintf("(bitwise-xor %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("bitXor(%s, %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
 
 				case token.AND_NOT: // bitwise clear
-					return fmt.Sprintf("(bitwise-and %s (bitwise-not %s))", c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("bitAnd(%s, bitFlip(%s, bitwidth=32))", c.translateExpr(e.X), c.translateExpr(e.Y))
 				default:
 					panic(e.Op)
 				}
@@ -278,11 +284,11 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 				// floating point op
 				switch e.Op {
 				case token.QUO:
-					return fmt.Sprintf("(/ %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("%s / %s", c.translateExpr(e.X), c.translateExpr(e.Y))
 				case token.EQL:
-					return fmt.Sprintf("(equal? %s %s)", c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("%s == %s", c.translateExpr(e.X), c.translateExpr(e.Y))
 				case token.MUL, token.LSS, token.LEQ, token.GTR, token.GEQ, token.ADD, token.SUB:
-					return fmt.Sprintf("(%s %s %s)", e.Op.String(), c.translateExpr(e.X), c.translateExpr(e.Y))
+					return fmt.Sprintf("%s %s %s", c.translateExpr(e.X), e.Op.String(), c.translateExpr(e.Y))
 
 				}
 			}
@@ -493,18 +499,53 @@ func typeKind(ty types.Type) string {
 	}
 }
 
+var FmtRegex = regexp.MustCompile(`[%][^%]*?[^%vTtbcdoqxXUeEfgGsp]*[vTtbcdoqxXUeEfgGsp]`)
+
 func specialCasePrintf(pkg string, name string, argSlice []string) string {
 	format := argSlice[0]
-	format = strings.Replace(format, "%v", "~A", -1) // -1 => replace all instances of %v with ~A
-	format = strings.Replace(format, "%#v", "~A", -1)
-	format = strings.Replace(format, "%+#v", "~A", -1)
-	format = strings.Replace(format, "%#+v", "~A", -1)
-
-	argStr := ""
 	if len(argSlice) > 1 {
-		argStr = " " + strings.Join(argSlice[1:], " ")
+		interleaved := interleaveFormatParts(format, argSlice[1:])
+		argStr := strings.Join(interleaved, `, `)
+		return `print(paste(sep="", ` + argStr + "))"
 	}
-	return "(pretty-print (printf " + format + argStr + "))"
+	return `print(` + format + `)`
+}
+
+func interleaveFormatParts(format string, argSlice []string) []string {
+	//format := `-1%v%v0123%#+v45%v6%%%v`
+	format = dequote(format)
+	matches := FmtRegex.FindAllStringIndex(format, -1)
+	nextArgVal := ""          // always valid
+	nextArgI := len(argSlice) // invalid to begin
+	if len(argSlice) > 0 {
+		nextArgVal = argSlice[0]
+		nextArgI = 1 // might be valid, or might not
+	}
+
+	//fmt.Printf("format is '%s'\n", format)
+	parts := []string{}
+	from := 0
+	for _, m := range matches {
+		//fmt.Printf("k=%d-th match: %v    and from: %v\n", k, m, from)
+		if from != m[0] {
+			part := format[from:m[0]]
+			parts = append(parts, `"`+part+`"`)
+		}
+		//parts = append(parts, "%")
+		parts = append(parts, nextArgVal)
+		if nextArgI < len(argSlice) {
+			nextArgVal = argSlice[nextArgI]
+			nextArgI++
+		}
+
+		from = m[1]
+	}
+	if from <= len(format)-1 {
+		parts = append(parts, `"`+format[from:]+`"`)
+	}
+	//fmt.Printf("at end, from: %d, len(format):%v    parts: %v\n", from, len(format), parts)
+
+	return parts
 }
 
 func fixNumber(value string, basic *types.Basic) string {
@@ -603,4 +644,19 @@ func (c *Accum) clone(src string, ty types.Type) string {
 	default:
 		return src
 	}
+}
+
+func dequote(s string) string {
+	if len(s) < 1 {
+		return s
+	}
+	r := s
+	if s[0] == '"' {
+		r = s[1:]
+	}
+	le := len(r)
+	if r[le-1] == '"' {
+		r = r[:le-1]
+	}
+	return r
 }

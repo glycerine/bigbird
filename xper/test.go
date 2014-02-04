@@ -14,13 +14,18 @@ func andNot(x int, y int) {
 	fmt.Printf(" x(%d) &^ y(%d) == %d\n", x, y, x&^y)
 }
 
+func binNot(x int, y int) {
+	fmt.Printf("%d ! %d == %d\n", x, y, x!y)
+}
+
+
 func main() { // %    /
 	//Q(x, y)   x = q*y + r
-	// x   y      r   q
-	Q(-5, -2) // -1,  2;  -5 == 2*-2 + -1, checks ok.
-	Q(-5, 2)  // -1, -2;  -5 == -2*2 + -1, checks ok.
-	Q(5, -2)  //  1, -2;   5 == -2*-2 + 1, checks ok.
-	Q(5, 2)   //  1,  2;   5 == 2*2   + 1, checks ok.
+	// x   y      r   q                                                       q                r
+	Q(-5, -2) // -1,  2;  -5 == 2*-2 + -1, checks ok. ok  in R: -5 %/% -2 ==  2,  -5 %% -2 == -1  ok
+	Q(-5, 2)  // -1, -2;  -5 == -2*2 + -1, checks ok. bad in R: -5 %/%  2 == -3,  -5 %%  2 ==  1, bad
+	Q(5, -2)  //  1, -2;   5 == -2*-2 + 1, checks ok. bad in R:  5 %/% -2 == -3,   5 %% -2 == -1, bad
+	Q(5, 2)   //  1,  2;   5 == 2*2   + 1, checks ok. ok  in R:  5 %/%  2 ==  2,   5 %%  2 ==  1  ok
 
 	fmt.Printf("   \n")
 	Q(5, 3)   // r == 2

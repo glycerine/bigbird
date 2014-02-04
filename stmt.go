@@ -152,7 +152,7 @@ func (c *Accum) ParseStmt(stmt ast.Stmt, line string) ([]string, error) {
 				"but right-hand side had %d", line, len(lhsScm), len(rhsScm)))
 		}
 		for i := range lhsScm {
-			r = append(r, "(define "+lhsScm[i]+" "+rhsScm[i]+")")
+			r = append(r, lhsScm[i]+" = "+rhsScm[i]+";")
 		}
 
 		return r, nil
