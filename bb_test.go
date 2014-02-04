@@ -156,11 +156,23 @@ func TestBinop(t *testing.T) {
 			})
 		})
 
-		cv.Convey("When we define an increment function; func incr(x int) int { return x + 1 }", func() {
-			cv.Convey("then we should get (define (incr x) (+ x 1)) in scheme.", func() {
-				cv.So(toScheme("func incr(x int) int { return x + 1 }"), cv.ShouldEqual, "(define (incr x) (+ x 1))")
+		cv.Convey("When we call fmt.Printf to display an object", func() {
+			cv.Convey("it gets turned into a call to (printf)", func() {
+				cv.So(toScheme(`fmt.Printf("hello")`), cv.ShouldEqual, `(printf "hello")`)
+			})
+			cv.Convey("instances of %%v and %%#v get turned into ~A within the formatting string", func() {
+				cv.So(toScheme(`fmt.Printf("%v %#v\n",a,b)`), cv.ShouldEqual,
+					`(printf "~A ~A\n" a b)`)
 			})
 		})
+
+		/*
+			cv.Convey("When we define an increment function; func incr(x int) int { return x + 1 }", func() {
+				cv.Convey("then we should get (define (incr x) (+ x 1)) in scheme.", func() {
+					cv.So(toScheme("func incr(x int) int { return x + 1 }"), cv.ShouldEqual, "(define (incr x) (+ x 1))")
+				})
+			})
+		*/
 
 	})
 }

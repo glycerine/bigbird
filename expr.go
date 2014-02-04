@@ -68,8 +68,13 @@ func (c *Accum) translateExpr(expr ast.Expr) string {
 		if c.err != nil {
 			return ""
 		}
-		argStr := strings.Join(argSlice, " ")
-		call := "(" + pkg + "." + name + " " + argStr + ")"
+		call := ""
+		if pkg == "fmt" && name == "Printf" {
+			call = specialCasePrintf(pkg, name, argSlice)
+		} else {
+			argStr := strings.Join(argSlice, " ")
+			call = "(" + pkg + "." + name + " " + argStr + ")"
+		}
 		return call
 
 		// derived from gopherjs/expressions.go code
@@ -481,4 +486,18 @@ func typeKind(ty types.Type) string {
 	default:
 		panic(fmt.Sprintf("Unhandled type: %T\n", t))
 	}
+}
+
+func specialCasePrintf(pkg string, name string, argSlice []string) string {
+	format := argSlice[0]
+	format = strings.Replace(format, "%v", "~A", -1) // -1 => replace all instances of %v with ~A
+	format = strings.Replace(format, "%#v", "~A", -1)
+	format = strings.Replace(format, "%+#v", "~A", -1)
+	format = strings.Replace(format, "%#+v", "~A", -1)
+
+	argStr := ""
+	if len(argSlice) > 1 {
+		argStr = " " + strings.Join(argSlice[1:], " ")
+	}
+	return "(printf " + format + argStr + ")"
 }
