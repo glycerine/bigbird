@@ -1,12 +1,13 @@
 package translator
 
 import (
-	"code.google.com/p/go.tools/go/exact"
-	"code.google.com/p/go.tools/go/types"
 	"fmt"
 	"go/ast"
 	"go/token"
 	"strings"
+
+	"code.google.com/p/go.tools/go/exact"
+	"code.google.com/p/go.tools/go/types"
 )
 
 func (c *PkgContext) translateStmtList(stmts []ast.Stmt) {
@@ -18,11 +19,11 @@ func (c *PkgContext) translateStmtList(stmts []ast.Stmt) {
 func (c *PkgContext) translateStmt(stmt ast.Stmt, label string) {
 	switch s := stmt.(type) {
 	case *ast.BlockStmt:
-		c.Printf("{")
+		c.Printf("(being \n")
 		c.Indent(func() {
 			c.translateStmtList(s.List)
 		})
-		c.Printf("}")
+		c.Printf("\n)")
 
 	case *ast.IfStmt:
 		var caseClauses []ast.Stmt
@@ -56,7 +57,7 @@ func (c *PkgContext) translateStmt(stmt ast.Stmt, label string) {
 		}
 		if s.Tag != nil {
 			refVar := c.newVariable("_ref")
-			c.Printf("%s = %s;", refVar, c.translateExpr(s.Tag))
+			c.Printf("(define %s  %s)", refVar, c.translateExpr(s.Tag))
 			translateCond = func(cond ast.Expr) string {
 				refId := c.newIdent(refVar, c.info.Types[s.Tag].Type)
 				return c.translateExpr(&ast.BinaryExpr{
@@ -86,7 +87,7 @@ func (c *PkgContext) translateStmt(stmt ast.Stmt, label string) {
 		}
 		refVar := c.newVariable("_ref")
 		typeVar := c.newVariable("_type")
-		c.Printf("%s = %s;", refVar, c.translateExpr(expr))
+		c.Printf("(define %s %s)", refVar, c.translateExpr(expr))
 		c.Printf("%s = %s !== null ? %s.constructor : null;", typeVar, refVar, refVar)
 		translateCond := func(cond ast.Expr) string {
 			return c.typeCheck(typeVar, c.info.Types[cond].Type)
