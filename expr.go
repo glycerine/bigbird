@@ -501,3 +501,21 @@ func specialCasePrintf(pkg string, name string, argSlice []string) string {
 	}
 	return "(pretty-print (printf " + format + argStr + "))"
 }
+
+type HasDeferVisitor struct {
+	hasDefer bool
+}
+
+func (v *HasDeferVisitor) Visit(node ast.Node) (w ast.Visitor) {
+	if v.hasDefer {
+		return nil
+	}
+	switch node.(type) {
+	case *ast.DeferStmt:
+		v.hasDefer = true
+		return nil
+	case *ast.FuncLit:
+		return nil
+	}
+	return v
+}

@@ -164,7 +164,7 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 	//	fmt.Printf("\n bird: f.Decls[0].Body is: %#v\n", body)
 
 	if !targetMain && targetFuncName != "main" && targetFuncName != "" {
-		return CreateFunctionDefinition(line, ac, targetFuncName, mainParse)
+		return CreateFunctionDefinition("bbrepl", line, ac, targetFuncName, mainParse)
 	}
 
 	blen := len(body.List)
@@ -191,7 +191,7 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 		//goon.Dump(ty)
 	}
 
-	schemeLines, err := ParseStmt(lastStmt, line, ac)
+	schemeLines, err := ac.ParseStmt(lastStmt, line)
 
 	if err != nil {
 		errList = append(errList, err)
@@ -219,11 +219,41 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 	return schemeLines, nil
 }
 
-func CreateFunctionDefinition(line string, ac *Accum, targetFuncName string, ast *ast.FuncDecl) ([]string, error) {
+func CreateFunctionDefinition(importPath string, line string, ac *Accum, targetFuncName string, fun *ast.FuncDecl) ([]string, error) {
 	schemeLines := []string{}
 
-	fmt.Printf("CreateFunctionDefinition() called with ast for function %v:\n", targetFuncName)
-	goon.Dump(ast)
+	fmt.Printf("CreateFunctionDefinition() called with fun for function %v:\n", targetFuncName)
+	goon.Dump(fun)
 
+	argnm := []string{}
+	funname := fun.Name.Name
+	fmt.Printf("function name is: '%s'\n", funname)
+	fields := fun.Type.Params.List
+	for _, v := range fields {
+		names := (*v).Names
+		for _, n := range names {
+			fmt.Printf("function arg is '%s'\n", n.Name)
+			argnm = append(argnm, n.Name)
+		}
+	}
+
+	joinedArgs := strings.Join(argnm, " ")
+
+	returnPre := "(call/cc (lambda (return) "
+	//ac.translateFunction(fun.Body.List)
+
+	natives := pkgNatives[importPath]
+
+	ac.translateFunction(fun, natives, false)
+	body := string(ac.output)
+	returnPost := "))"
+
+	funSch := "(define (" + funname + " " + joinedArgs + ") " +
+		returnPre +
+		body +
+		returnPost +
+		")"
+
+	schemeLines = append(schemeLines, funSch)
 	return schemeLines, nil
 }
