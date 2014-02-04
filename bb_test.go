@@ -169,7 +169,14 @@ func TestBinop(t *testing.T) {
 		cv.Convey("When we define an increment function; func incr(x int) int { return x + 1 }", func() {
 			cv.Convey("then we should get (define (incr x) (+ x 1)) in scheme + return handling with call/cc.", func() {
 				cv.So(toScheme("func incr(x int) int { return x + 1 }"), cv.ShouldEqual,
-					"(define (incr x) (call/cc (lambda (return) (return (+ x 1))\n)))")
+					"(define (incr x) (call/cc (lambda (return) (return (+ x 1)))))")
+			})
+		})
+
+		cv.Convey("When we define a simple add function; func add(x, y int) int { return x + 1 }", func() {
+			cv.Convey("then we should get (define (add x y) (+ x y)) in scheme + return handling with call/cc.", func() {
+				cv.So(toScheme("func add(x, y int) int { return x + y }"), cv.ShouldEqual,
+					"(define (add x y) (call/cc (lambda (return) (return (+ x y)))))")
 			})
 		})
 

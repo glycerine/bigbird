@@ -6,9 +6,8 @@ import (
 	"go/parser"
 	"go/token"
 	"strings"
-	"code.google.com/p/go.tools/go/types"
 
-	"github.com/shurcooL/go-goon"
+	"code.google.com/p/go.tools/go/types"
 )
 
 func TranslateToScheme(line string, ac *Accum) ([]string, error) {
@@ -223,17 +222,17 @@ func ParseAndType(line string, ac *Accum) ([]string, error) {
 func CreateFunctionDefinition(importPath string, line string, c *Accum, targetFuncName string, fun *ast.FuncDecl) ([]string, error) {
 	schemeLines := []string{}
 
-	fmt.Printf("CreateFunctionDefinition() called with fun for function %v:\n", targetFuncName)
-	goon.Dump(fun)
+	//fmt.Printf("CreateFunctionDefinition() called with fun for function %v:\n", targetFuncName)
+	//goon.Dump(fun)
 
 	argnm := []string{}
 	funname := fun.Name.Name
-	fmt.Printf("function name is: '%s'\n", funname)
+	//fmt.Printf("function name is: '%s'\n", funname)
 	fields := fun.Type.Params.List
 	for _, v := range fields {
 		names := (*v).Names
 		for _, n := range names {
-			fmt.Printf("function arg is '%s'\n", n.Name)
+			//fmt.Printf("function arg is '%s'\n", n.Name)
 			argnm = append(argnm, n.Name)
 		}
 	}
@@ -262,7 +261,7 @@ func CreateFunctionDefinition(importPath string, line string, c *Accum, targetFu
 	body := fun.Body.List
 	sig := c.info.Objects[fun.Name].(*types.Func).Type().(*types.Signature)
 	c.translateFunctionBody(body, sig)
-	bodySch := string(c.output)
+	bodySch := strings.TrimRight(string(c.output), "\n")
 	returnPost := "))"
 
 	funSch := "(define (" + funname + " " + joinedArgs + ") " +
